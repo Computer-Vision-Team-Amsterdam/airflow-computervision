@@ -29,7 +29,6 @@ with DAG(
 ) as dag:
     slack_at_start = MessageOperator(
         task_id="slack_at_start",
-        namespace="airflow-cvision2",
     )
 
     k8s = KubernetesPodOperator(
