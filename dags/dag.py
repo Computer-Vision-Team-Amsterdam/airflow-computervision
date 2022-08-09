@@ -37,7 +37,7 @@ with DAG(
         image="debian",
         cmds=["bash", "-cx"],
         arguments=["echo Hello from Debian... on K8S!"],
-        namespace="airflow",
+        namespace="airflow-cvision2",
         get_logs=True,
     )
 
