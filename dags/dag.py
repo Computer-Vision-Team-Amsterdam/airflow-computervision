@@ -6,6 +6,7 @@ from airflow import DAG
 from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
     KubernetesPodOperator,
 )
+from common import MessageOperator
 
 # from kubernetes.client import models as k8s_models
 
@@ -26,6 +27,10 @@ with DAG(
     catchup=False,
     tags=["test"],
 ) as dag:
+    slack_at_start = MessageOperator(
+        task_id="slack_at_start",
+    )
+
     k8s = KubernetesPodOperator(
         name="my-k8s-task",
         task_id="kubernetes",
@@ -35,6 +40,8 @@ with DAG(
         namespace="airflow",
         get_logs=True,
     )
+
+    slack_at_start >> k8s
 
     # volume_mount = k8s_models.V1VolumeMount(
     #     name="dags-pv",
