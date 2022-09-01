@@ -53,7 +53,7 @@ with DAG(
 
     slack_at_start >> diana_test
 
-    slack_at_start >> k8s
+    #slack_at_start >> k8s
 
     # volume_mount = k8s_models.V1VolumeMount(
     #     name="dags-pv",
