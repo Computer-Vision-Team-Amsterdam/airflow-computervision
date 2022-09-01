@@ -47,8 +47,6 @@ with DAG(
         name="test-pullACR",
         task_id="diana_test",
         image="cvtweuacrogidgmnhwma3zq.azurecr.io/diana-test:latest",
-        cmds=["bash", "-cx"],
-        arguments=["echo Hello from container in ACR!"],
         namespace="airflow-cvision2",
         get_logs=True
     )
