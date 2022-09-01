@@ -46,7 +46,7 @@ with DAG(
     diana_test = KubernetesPodOperator(
         name="test-pullACR",
         task_id="diana_test",
-        image="epureanudiana/diana-container:bullseye0.1",
+        image="cvtweuacrogidgmnhwma3zq.azurecr.io/diana-test:latest",
         cmds=["python"],
         arguments=["dianaTest.py"],
         namespace="airflow-cvision2",
