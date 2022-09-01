@@ -47,13 +47,13 @@ with DAG(
         name="test-pullACR",
         task_id="diana_test",
         image="cvtweuacrogidgmnhwma3zq.azurecr.io/diana-test:latest",
+        cmds=["python"],
+        arguments=["dianaTest.py"],
         namespace="airflow-cvision2",
         get_logs=True
     )
 
     var = slack_at_start >> diana_test
-    # image = "cvtweuacrogidgmnhwma3zq.azurecr.io/diana-test:latest"
-    #slack_at_start >> k8s
 
     # volume_mount = k8s_models.V1VolumeMount(
     #     name="dags-pv",
