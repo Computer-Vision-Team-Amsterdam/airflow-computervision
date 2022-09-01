@@ -31,6 +31,7 @@ with DAG(
         task_id="slack_at_start",
     )
 
+    """
     k8s = KubernetesPodOperator(
         name="my-k8s-task",
         task_id="kubernetes",
@@ -40,19 +41,20 @@ with DAG(
         namespace="airflow-cvision2",
         get_logs=True,
     )
+    """
 
     diana_test = KubernetesPodOperator(
         name="test-pullACR",
         task_id="diana_test",
-        image="cvtweuacrogidgmnhwma3zq.azurecr.io/diana-test:latest",
+        image="epureanudiana/diana-container:bullseye0.1",
         cmds=["python"],
         arguments=["dianaTest.py"],
         namespace="airflow-cvision2",
         get_logs=True
     )
 
-    slack_at_start >> diana_test
-
+    var = slack_at_start >> diana_test
+    # image = "cvtweuacrogidgmnhwma3zq.azurecr.io/diana-test:latest"
     #slack_at_start >> k8s
 
     # volume_mount = k8s_models.V1VolumeMount(
