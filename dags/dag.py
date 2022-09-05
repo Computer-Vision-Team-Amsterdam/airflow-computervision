@@ -6,31 +6,26 @@ from airflow import DAG
 from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
     KubernetesPodOperator,
 )
-from common import MessageOperator
-
-# from kubernetes.client import models as k8s_models
-
 
 with DAG(
-    "test",
-    default_args={
-        "depends_on_past": False,
-        "email": ["CVT@amsterdam.nl"],
-        "email_on_failure": False,
-        "email_on_retry": False,
-        "retries": 1,
-        "retry_delay": timedelta(minutes=5),
-    },
-    description="A test DAG",
-    schedule_interval=timedelta(days=1),
-    start_date=datetime(2022, 8, 9),
-    catchup=False,
-    tags=["test"],
+        "test",
+        default_args={
+            "depends_on_past": False,
+            "email": ["CVT@amsterdam.nl"],
+            "email_on_failure": False,
+            "email_on_retry": False,
+            "retries": 1,
+            "retry_delay": timedelta(minutes=5),
+        },
+        description="A test DAG",
+        schedule_interval=timedelta(days=1),
+        start_date=datetime(2022, 8, 9),
+        catchup=False,
+        tags=["test"],
 ) as dag:
     slack_at_start = MessageOperator(
         task_id="slack_at_start",
     )
-
     """
     k8s = KubernetesPodOperator(
         name="my-k8s-task",
@@ -43,17 +38,17 @@ with DAG(
     )
     """
 
-    diana_test = KubernetesPodOperator(
-        name="test-pullACR",
-        task_id="diana_test",
-        image="cvtweuacrogidgmnhwma3zq.azurecr.io/diana-test:latest",
+    retrieve_images = KubernetesPodOperator(
+        name="test-cloudvps-connection",
+        task_id="test-cloudvps-connection",
+        image="cvtweuacrogidgmnhwma3zq.azurecr.io/retrieve-images:latest",
         cmds=["python"],
-        arguments=["dianaTest.py"],
+        arguments=["retrieve_images.py"],
         namespace="airflow-cvision2",
         get_logs=True
     )
 
-    var = slack_at_start >> diana_test
+    var = slack_at_start >> retrieve_images
 
     # volume_mount = k8s_models.V1VolumeMount(
     #     name="dags-pv",
