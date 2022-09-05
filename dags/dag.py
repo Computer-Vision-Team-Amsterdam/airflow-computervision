@@ -27,17 +27,6 @@ with DAG(
     slack_at_start = MessageOperator(
         task_id="slack_at_start",
     )
-    """
-    k8s = KubernetesPodOperator(
-        name="my-k8s-task",
-        task_id="kubernetes",
-        image="debian",
-        cmds=["bash", "-cx"],
-        arguments=["echo Hello from Debian... on K8S!"],
-        namespace="airflow-cvision2",
-        get_logs=True,
-    )
-    """
 
     retrieve_images = KubernetesPodOperator(
         name="test-cloudvps-connection",
