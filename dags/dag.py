@@ -28,7 +28,6 @@ with DAG(
         task_id="slack_at_start",
     )
 
-    """
     retrieve_images = KubernetesPodOperator(
         name="test-cloudvps-connection",
         task_id="test_cloudvps_connection",
@@ -38,9 +37,8 @@ with DAG(
         namespace="airflow-cvision2",
         get_logs=True
     )
-    """
 
-    var = slack_at_start
+    var = slack_at_start >> retrieve_images
 
     # volume_mount = k8s_models.V1VolumeMount(
     #     name="dags-pv",
