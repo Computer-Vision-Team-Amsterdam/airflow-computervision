@@ -32,8 +32,8 @@ with DAG(
         name="test-cloudvps-connection",
         task_id="test_cloudvps_connection",
         image="cvtweuacrogidgmnhwma3zq.azurecr.io/retrieve-images:latest",
-        cmds=["python"],
-        arguments=["retrieve_images.py"],
+        cmds=["bash", "-cx"],
+        arguments=["echo Hello"],
         namespace="airflow-cvision2",
         get_logs=True
     )
