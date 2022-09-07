@@ -90,19 +90,21 @@ with DAG(
         task_id="authenticate_env_2",
         python_callable=authenticate_env_2
     )
-    """
+
     retrieve_images = KubernetesPodOperator(
         name="test-cloudvps-connection",
         task_id="test_cloudvps_connection",
         image="cvtweuacrogidgmnhwma3zq.azurecr.io/retrieve-images:latest",
-        cmds=["bash", "-cx"],
-        arguments=["printenv"],
+        hostnetwork=True,
+        cmds=["python"],
+        arguments=["retrieve_images.py"],
         namespace="airflow-cvision2",
         get_logs=True
     )
-    """
 
-    var = authenticate_env_1  >> authenticate_env_2
+    var_1 = authenticate_env_1
+    var_2 = authenticate_env_2
+    var_3 = retrieve_images
 
     # volume_mount = k8s_models.V1VolumeMount(
     #     name="dags-pv",
