@@ -15,7 +15,6 @@ from common import MessageOperator
 
 
 def authenticate_manually():
-    print(os.environ)
     KVUri = f"https://kv-cvision2-ont-weu-01.vault.azure.net"
 
     credential = DefaultAzureCredential()
@@ -104,6 +103,7 @@ with DAG(
         get_logs=True
     )
 
+    var_0 = authenticate_manually
     var_1 = authenticate_env_1
     var_2 = authenticate_env_2
     var_3 = retrieve_images
