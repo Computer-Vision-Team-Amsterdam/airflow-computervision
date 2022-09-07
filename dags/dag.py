@@ -1,14 +1,14 @@
 import os
-import json
-from typing import Optional
+#import json
+#from typing import Optional
 
-import requests
-from requests.auth import HTTPBasicAuth
+#import requests
+#from requests.auth import HTTPBasicAuth
 
 from datetime import datetime, timedelta
 
-from azure.identity import DefaultAzureCredential
-from azure.keyvault.secrets import SecretClient
+#from azure.identity import DefaultAzureCredential
+#from azure.keyvault.secrets import SecretClient
 
 from airflow import DAG
 
@@ -18,6 +18,7 @@ from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
 )
 from common import MessageOperator
 
+"""
 def test_connection_python():
 
     airflow_secrets = json.loads(os.environ["AIRFLOW__SECRETS__BACKEND_KWARGS"])
@@ -35,7 +36,7 @@ def test_connection_python():
         url, stream=True, auth=HTTPBasicAuth(username_secret.value, password_secret.value)
     )
     print(f"response code  is {response.status_code}")
-
+"""
 
 with DAG(
         "test",
@@ -59,10 +60,12 @@ with DAG(
     )
     """
 
+    """"
     test_connection_python = PythonOperator(
         task_id="test_connection_python",
         python_callable=test_connection_python
     )
+    """
 
     retrieve_images = KubernetesPodOperator(
         name="test-cloudvps-connection",
@@ -76,7 +79,7 @@ with DAG(
         get_logs=True
     )
 
-    var_1 = test_connection_python
+    #var_1 = test_connection_python
     var_2 = retrieve_images
 
     # volume_mount = k8s_models.V1VolumeMount(
