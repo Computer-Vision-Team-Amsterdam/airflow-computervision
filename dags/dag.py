@@ -1,12 +1,19 @@
+import os
 from datetime import datetime, timedelta
 
 from airflow import DAG
 # from airflow.models.baseoperator import chain
 # from airflow.operators.bash import BashOperator
+from airflow.operators.python import PythonOperator
 from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
     KubernetesPodOperator,
 )
 from common import MessageOperator
+
+
+def print_envs():
+    print(os.environ)
+
 
 with DAG(
         "test",
@@ -30,6 +37,12 @@ with DAG(
     )
     """
 
+    print_env_vars = PythonOperator(
+        task_id="print_envs",
+        python_callable=print_envs
+
+    )
+
     retrieve_images = KubernetesPodOperator(
         name="test-cloudvps-connection",
         task_id="test_cloudvps_connection",
@@ -40,7 +53,7 @@ with DAG(
         get_logs=True
     )
 
-    var = retrieve_images
+    var = print_env_vars
 
     # volume_mount = k8s_models.V1VolumeMount(
     #     name="dags-pv",
