@@ -13,7 +13,7 @@ from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
 from common import MessageOperator
 
 
-def authenticate():
+def authenticate_manually():
     print(os.environ)
     KVUri = f"https://kv-cvision2-ont-weu-01.vault.azure.net"
 
@@ -21,7 +21,18 @@ def authenticate():
     client = SecretClient(vault_url=KVUri, credential=credential)
 
     username_secret = client.get_secret(name="CloudVpsRawUsername")
-    print(f"USERNAME: {username_secret}")
+    print(f"USERNAME: {username_secret.value}")
+
+
+def authenticate_env():
+    KVUri = os.environ["AIRFLOW__SECRETS__BACKEND_KWARGS"]
+
+    print(f"KVUri is {KVUri}")
+    credential = DefaultAzureCredential()
+    client = SecretClient(vault_url=KVUri, credential=credential)
+
+    username_secret = client.get_secret(name="CloudVpsRawUsername")
+    print(f"USERNAME: {username_secret.value}")
 
 
 with DAG(
@@ -46,12 +57,17 @@ with DAG(
     )
     """
 
-    print_env_vars = PythonOperator(
-        task_id="print_envs",
-        python_callable=authenticate
+    authenticate_manually = PythonOperator(
+        task_id="authenticate_manually",
+        python_callable=authenticate_manually
 
     )
 
+    authenticate_env = PythonOperator(
+        task_id="authenticate_env",
+        python_callable=authenticate_env
+    )
+    """
     retrieve_images = KubernetesPodOperator(
         name="test-cloudvps-connection",
         task_id="test_cloudvps_connection",
@@ -61,8 +77,9 @@ with DAG(
         namespace="airflow-cvision2",
         get_logs=True
     )
+    """
 
-    var = print_env_vars
+    var = authenticate_env
 
     # volume_mount = k8s_models.V1VolumeMount(
     #     name="dags-pv",
