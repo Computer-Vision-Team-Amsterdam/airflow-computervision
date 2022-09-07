@@ -1,4 +1,5 @@
 import os
+import json
 from datetime import datetime, timedelta
 
 from azure.identity import DefaultAzureCredential
@@ -28,10 +29,11 @@ def authenticate_env_1():
     KVUri = os.environ["AIRFLOW__SECRETS__BACKEND_KWARGS"]
 
     print(f"KVUri is {KVUri}")
-    print("KVUri entry is")
-    print(KVUri["vault_url"])
+    print("trying with json")
+    kv = json.loads(KVUri)
+    print(f"kv is {kv}")
 
-    KVUri = KVUri["vault_url"]
+
     credential = DefaultAzureCredential()
     client = SecretClient(vault_url=KVUri, credential=credential)
 
