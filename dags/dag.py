@@ -1,5 +1,8 @@
 import os
 import json
+import requests
+from requests.auth import HTTPBasicAuth
+
 from datetime import datetime, timedelta
 
 from azure.identity import DefaultAzureCredential
@@ -14,7 +17,7 @@ from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
 from common import MessageOperator
 
 
-def authenticate_env_1():
+def test_connection_python():
 
     airflow_secrets = json.loads(os.environ["AIRFLOW__SECRETS__BACKEND_KWARGS"])
     KVUri = airflow_secrets["vault_url"]
@@ -23,8 +26,14 @@ def authenticate_env_1():
     client = SecretClient(vault_url=KVUri, credential=credential)
 
     username_secret = client.get_secret(name="CloudVpsRawUsername")
-    print(f"USERNAME: {username_secret.value}")
+    password_secret = client.get_secret(name="CloudVpsRawPassword")
 
+
+    url = "https://3206eec333a04cc980799f75a593505a.objectstore.eu/intermediate/2016/03/17/TMX7315120208-000020/pano_0000_000000.jpg"
+    response = requests.get(
+        url, stream=True, auth=HTTPBasicAuth(username_secret.value, password_secret.value)
+    )
+    print(f"response code  is {response.status_code}")
 
 
 with DAG(
@@ -49,25 +58,25 @@ with DAG(
     )
     """
 
-    authenticate_env_1 = PythonOperator(
-        task_id="authenticate_env_1",
-        python_callable=authenticate_env_1
+    test_connection_python = PythonOperator(
+        task_id="test_connection_python",
+        python_callable=test_connection_python
     )
-
 
     retrieve_images = KubernetesPodOperator(
         name="test-cloudvps-connection",
         task_id="test_cloudvps_connection",
         image="cvtweuacrogidgmnhwma3zq.azurecr.io/retrieve-images:latest",
         hostnetwork=True,
+        in_cluster=True,
         cmds=["python"],
         arguments=["retrieve_images.py"],
         namespace="airflow-cvision2",
         get_logs=True
     )
 
-    var_1 = authenticate_env_1
-    var_3 = retrieve_images
+    var_1 = test_connection_python
+    var_2 = retrieve_images
 
     # volume_mount = k8s_models.V1VolumeMount(
     #     name="dags-pv",
