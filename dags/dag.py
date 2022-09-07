@@ -102,7 +102,7 @@ with DAG(
     )
     """
 
-    var = authenticate_env
+    var = authenticate_env_1  >> authenticate_env_2
 
     # volume_mount = k8s_models.V1VolumeMount(
     #     name="dags-pv",
