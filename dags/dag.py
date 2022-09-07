@@ -73,8 +73,8 @@ with DAG(
         env_vars=container_vars,
         hostnetwork=True,
         in_cluster=True,
-        cmds=["bash", "-cx"],
-        arguments=["printenv"],
+        cmds=["python"],
+        arguments=["retrieve_images.py"],
         namespace="airflow-cvision2",
         get_logs=True
     )
