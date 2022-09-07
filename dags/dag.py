@@ -24,10 +24,26 @@ def authenticate_manually():
     print(f"USERNAME: {username_secret.value}")
 
 
-def authenticate_env():
+def authenticate_env_1():
     KVUri = os.environ["AIRFLOW__SECRETS__BACKEND_KWARGS"]
 
     print(f"KVUri is {KVUri}")
+    print("KVUri entry is")
+    print(KVUri["vault_url"])
+
+    KVUri = KVUri["vault_url"]
+    credential = DefaultAzureCredential()
+    client = SecretClient(vault_url=KVUri, credential=credential)
+
+    username_secret = client.get_secret(name="CloudVpsRawUsername")
+    print(f"USERNAME: {username_secret.value}")
+
+
+def authenticate_env_2():
+    KVUri = os.environ["AIRFLOW__SECRETS__BACKEND_KWARGS"]
+
+    print(f"KVUri is {KVUri}")
+
     credential = DefaultAzureCredential()
     client = SecretClient(vault_url=KVUri, credential=credential)
 
@@ -57,15 +73,22 @@ with DAG(
     )
     """
 
+    """
     authenticate_manually = PythonOperator(
         task_id="authenticate_manually",
         python_callable=authenticate_manually
 
     )
+    """
 
-    authenticate_env = PythonOperator(
-        task_id="authenticate_env",
-        python_callable=authenticate_env
+    authenticate_env_1 = PythonOperator(
+        task_id="authenticate_env_1",
+        python_callable=authenticate_env_1
+    )
+
+    authenticate_env_2 = PythonOperator(
+        task_id="authenticate_env_2",
+        python_callable=authenticate_env_2
     )
     """
     retrieve_images = KubernetesPodOperator(
