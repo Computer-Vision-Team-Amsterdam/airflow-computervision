@@ -1,9 +1,11 @@
 import os
 from datetime import datetime, timedelta
 
+from azure.identity import DefaultAzureCredential
+from azure.keyvault.secrets import SecretClient
+
 from airflow import DAG
-# from airflow.models.baseoperator import chain
-# from airflow.operators.bash import BashOperator
+
 from airflow.operators.python import PythonOperator
 from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
     KubernetesPodOperator,
@@ -11,8 +13,15 @@ from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
 from common import MessageOperator
 
 
-def print_envs():
+def authenticate():
     print(os.environ)
+    KVUri = f"https://kv-cvision2-ont-weu-01.vault.azure.net"
+
+    credential = DefaultAzureCredential()
+    client = SecretClient(vault_url=KVUri, credential=credential)
+
+    username_secret = client.get_secret(name="CloudVpsRawUsername")
+    print(f"USERNAME: {username_secret}")
 
 
 with DAG(
@@ -39,7 +48,7 @@ with DAG(
 
     print_env_vars = PythonOperator(
         task_id="print_envs",
-        python_callable=print_envs
+        python_callable=authenticate
 
     )
 
