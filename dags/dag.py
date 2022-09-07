@@ -1,5 +1,7 @@
 import os
 import json
+from typing import Optional
+
 import requests
 from requests.auth import HTTPBasicAuth
 
@@ -16,6 +18,7 @@ from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
 )
 from common import MessageOperator
 
+container_vars = {"AZURE_CLIENT_ID": os.getenv("AZURE_CLIENT_ID")}
 
 def test_connection_python():
 
@@ -67,10 +70,11 @@ with DAG(
         name="test-cloudvps-connection",
         task_id="test_cloudvps_connection",
         image="cvtweuacrogidgmnhwma3zq.azurecr.io/retrieve-images:latest",
+        env_vars=container_vars,
         hostnetwork=True,
         in_cluster=True,
-        cmds=["python"],
-        arguments=["retrieve_images.py"],
+        cmds=["bash", "-cx"],
+        arguments=["printenv"],
         namespace="airflow-cvision2",
         get_logs=True
     )
