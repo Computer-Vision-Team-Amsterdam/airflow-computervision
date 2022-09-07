@@ -72,7 +72,6 @@ with DAG(
         image="cvtweuacrogidgmnhwma3zq.azurecr.io/retrieve-images:latest",
         env_vars=container_vars,
         hostnetwork=True,
-        in_cluster=True,
         cmds=["python"],
         arguments=["retrieve_images.py"],
         namespace="airflow-cvision2",
