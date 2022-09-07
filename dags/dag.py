@@ -14,24 +14,10 @@ from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
 from common import MessageOperator
 
 
-def authenticate_manually():
-    KVUri = f"https://kv-cvision2-ont-weu-01.vault.azure.net"
-
-    credential = DefaultAzureCredential()
-    client = SecretClient(vault_url=KVUri, credential=credential)
-
-    username_secret = client.get_secret(name="CloudVpsRawUsername")
-    print(f"USERNAME: {username_secret.value}")
-
-
 def authenticate_env_1():
-    KVUri = os.environ["AIRFLOW__SECRETS__BACKEND_KWARGS"]
 
-    print(f"KVUri is {KVUri}")
-    print("trying with json")
-    kv = json.loads(KVUri)
-    print(f"kv is {kv}")
-
+    airflow_secrets = json.loads(os.environ["AIRFLOW__SECRETS__BACKEND_KWARGS"])
+    KVUri = airflow_secrets["vault_url"]
 
     credential = DefaultAzureCredential()
     client = SecretClient(vault_url=KVUri, credential=credential)
@@ -39,17 +25,6 @@ def authenticate_env_1():
     username_secret = client.get_secret(name="CloudVpsRawUsername")
     print(f"USERNAME: {username_secret.value}")
 
-
-def authenticate_env_2():
-    KVUri = os.environ["AIRFLOW__SECRETS__BACKEND_KWARGS"]
-
-    print(f"KVUri is {KVUri}")
-
-    credential = DefaultAzureCredential()
-    client = SecretClient(vault_url=KVUri, credential=credential)
-
-    username_secret = client.get_secret(name="CloudVpsRawUsername")
-    print(f"USERNAME: {username_secret.value}")
 
 
 with DAG(
@@ -74,23 +49,11 @@ with DAG(
     )
     """
 
-    """
-    authenticate_manually = PythonOperator(
-        task_id="authenticate_manually",
-        python_callable=authenticate_manually
-
-    )
-    """
-
     authenticate_env_1 = PythonOperator(
         task_id="authenticate_env_1",
         python_callable=authenticate_env_1
     )
 
-    authenticate_env_2 = PythonOperator(
-        task_id="authenticate_env_2",
-        python_callable=authenticate_env_2
-    )
 
     retrieve_images = KubernetesPodOperator(
         name="test-cloudvps-connection",
@@ -103,9 +66,7 @@ with DAG(
         get_logs=True
     )
 
-    var_0 = authenticate_manually
     var_1 = authenticate_env_1
-    var_2 = authenticate_env_2
     var_3 = retrieve_images
 
     # volume_mount = k8s_models.V1VolumeMount(
