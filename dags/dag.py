@@ -152,17 +152,25 @@ with DAG(
         namespace="airflow-cvision2",
         get_logs=True
     )
-    """
+
+    print_pwd = BashOperator(
+        task_id="print_pwd",
+        bash_command="pwd")
+
+    print_root = BashOperator(
+        task_id="print_root",
+        bash_command="ls ~")
+
     print_path_to_env = BashOperator(
         task_id="print_path_to_env",
-        bash_command="ls /opt/venv/bin/") # not found!
+        bash_command="ls /venv/bin/")  # not found!
 
     print_python_path = BashOperator(
         task_id="print_python_path",
         bash_command="which python") # /usr/local/bin/python
 
     
-    
+    """
     retrieve_images_one_env = KubernetesPodOperator(
         name="test-cloudvps-connection-one-env",
         task_id="test_cloudvps_connection-one-env",
@@ -180,8 +188,10 @@ with DAG(
     var_1 = test_connection_python
     var_2 = print_envs_pod
     #var_3 = retrieve_images
-    #var_4 = print_path_to_env
-    #var_5 = print_python_path
+    var_4 = print_path_to_env
+    var_5 = print_python_path
+    var_6 = print_pwd
+    var_7 = print_root
 
     # volume_mount = k8s_models.V1VolumeMount(
     #     name="dags-pv",
