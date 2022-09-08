@@ -135,8 +135,8 @@ with DAG(
         image="cvtweuacrogidgmnhwma3zq.azurecr.io/retrieve-images:latest",
         env_vars=all_env_vars,
         hostnetwork=True,
-        cmds=["bash", "-cx"],
-        arguments=["echo $PATH"],
+        cmds=["which python"],
+        #arguments=["which python"],
         namespace="airflow-cvision2",
         get_logs=True
     )
@@ -148,8 +148,8 @@ with DAG(
         env_vars=all_env_vars,
         hostnetwork=True,
         in_cluster=True,
-        cmds=["python"],
-        arguments=["retrieve_images.py"],
+        cmds=["ls"],
+        arguments=["opt/venv/bin/"],
         namespace="airflow-cvision2",
         get_logs=True
     )
