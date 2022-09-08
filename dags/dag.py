@@ -34,6 +34,7 @@ USERNAME = username_secret.value
 PASSWORD = password_secret.value
 
 container_vars = {
+    "AZURE_CLIENT_ID": os.getenv("AZURE_CLIENT_ID"),
     "AZURE_OTAP_ENVIRONMENT": os.getenv("AZURE_OTAP_ENVIRONMENT"),
     "AZURE_TENANT_ID": os.getenv("AZURE_TENANT_ID"),
     "AZURE_AAD_APP_REGISTRATIE_AIRFLOW_KEY": os.getenv("AZURE_AAD_APP_REGISTRATIE_AIRFLOW_KEY"),
