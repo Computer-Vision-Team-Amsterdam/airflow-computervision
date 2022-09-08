@@ -36,16 +36,9 @@ PASSWORD = password_secret.value
 
 container_vars = {
     "AZURE_CLIENT_ID": os.getenv("AZURE_CLIENT_ID"),
-    "AZURE_OTAP_ENVIRONMENT": os.getenv("AZURE_OTAP_ENVIRONMENT"),
     "AZURE_TENANT_ID": os.getenv("AZURE_TENANT_ID"),
-    "AZURE_AAD_APP_REGISTRATIE_AIRFLOW_KEY": os.getenv("AZURE_AAD_APP_REGISTRATIE_AIRFLOW_KEY"),
-    "AZURE_AAD_APP_REGISTRATIE_AIRFLOW_ID": os.getenv("AZURE_AAD_APP_REGISTRATIE_AIRFLOW_ID"),
-    "AIRFLOW__SECRETS__BACKEND": os.getenv("AIRFLOW__SECRETS__BACKEND"),
-    "AIRFLOW__SECRETS__BACKEND_KWARGS": os.getenv("AIRFLOW__SECRETS__BACKEND_KWARGS"),
-    "USER_ASSIGNED_MANAGED_IDENTITY": os.getenv("USER_ASSIGNED_MANAGED_IDENTITY")
-                }
+    }
 
-all_env_vars = dict(os.environ)
 
 def split_pano_id(pano_id: str) -> Tuple[str, str]:
     """
@@ -125,74 +118,28 @@ with DAG(
     slack_at_start = MessageOperator(
         task_id="slack_at_start",
     )
-    """
+   
 
     test_connection_python = PythonOperator(
         task_id="test_connection_python",
         python_callable=test_connection_python
     )
-
-    print_envs_pod = KubernetesPodOperator(
-        name="print_envs_pod",
-        task_id="print_envs_pod",
-        image="cvtweuacrogidgmnhwma3zq.azurecr.io/retrieve-images:latest",
-        env_vars=all_env_vars,
-        hostnetwork=True,
-        cmds=["bash", "-cx"],
-        arguments=["printenv"],
-        namespace="airflow-cvision2",
-        get_logs=True
-    )
-
-    retrieve_images = KubernetesPodOperator(
-        name="retrieve-images",
-        task_id="retrieve_images",
-        image="cvtweuacrogidgmnhwma3zq.azurecr.io/retrieve-images:latest",
-        env_vars=container_vars,
-        hostnetwork=True,
-        in_cluster=True,
-        cmds=["python"],
-        arguments=["retrieve_images.py"],
-        namespace="airflow-cvision2",
-        get_logs=True
-    )
-
-    """
-    print_pwd = BashOperator(
-        task_id="print_pwd",
-        bash_command="pwd")  # /tmp/airflowtmpt2sxtqg3
-
-    print_root = BashOperator(
-        task_id="print_root",
-        bash_command="ls ~")
-
-    print_path_to_env = BashOperator(
-        task_id="print_path_to_env",
-        bash_command="ls /venv/bin/")  # not found!
-
-    print_python_path = BashOperator(
-        task_id="print_python_path",
-        bash_command="which python") # /usr/local/bin/python
-    """
     
-    """
-    retrieve_images_one_env = KubernetesPodOperator(
-        name="test-cloudvps-connection-one-env",
-        task_id="test_cloudvps_connection-one-env",
-        image="cvtweuacrogidgmnhwma3zq.azurecr.io/retrieve-images:latest",
+     """
+
+    test = KubernetesPodOperator(
+        name="test",
+        task_id="test",
+        image="cvtweuacrogidgmnhwma3zq.azurecr.io/test:latest",
         env_vars=container_vars,
         hostnetwork=True,
-        in_cluster=True,
         cmds=["python"],
-        arguments=["retrieve_images.py"],
+        arguments=["test.py"],
         namespace="airflow-cvision2",
         get_logs=True
     )
-    """
 
-    var_1 = test_connection_python
-    var_2 = print_envs_pod
-    var_3 = retrieve_images
+    var = test
 
 
     # volume_mount = k8s_models.V1VolumeMount(
