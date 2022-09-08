@@ -90,6 +90,8 @@ def download_panorama_from_cloudvps(
 
 
 def test_connection_python():
+    for k, v in os.environ.items():
+        print(f'{k}={v}')
 
     pano_dates = [datetime(2016, 3, 17), datetime(2016, 3, 17), datetime(2016, 3, 17)]
     pano_ids = [
