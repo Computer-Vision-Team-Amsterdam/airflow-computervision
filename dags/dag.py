@@ -118,15 +118,26 @@ with DAG(
         python_callable=test_connection_python
     )
 
-
-    retrieve_images = KubernetesPodOperator(
-        name="test-cloudvps-connection",
-        task_id="test_cloudvps_connection",
+    print_envs_pod = KubernetesPodOperator(
+        name="print_envs_pod",
+        task_id="print_envs_pod",
         image="cvtweuacrogidgmnhwma3zq.azurecr.io/retrieve-images:latest",
         env_vars=all_variables,
         hostnetwork=True,
         cmds=["bash", "-cx"],
         arguments=["printenv"],
+        namespace="airflow-cvision2",
+        get_logs=True
+    )
+
+    retrieve_images = KubernetesPodOperator(
+        name="retrieve_images",
+        task_id="retrieve_images",
+        image="cvtweuacrogidgmnhwma3zq.azurecr.io/retrieve-images:latest",
+        env_vars=all_variables,
+        hostnetwork=True,
+        cmds=["python"],
+        arguments=["retrieve_images.py"],
         namespace="airflow-cvision2",
         get_logs=True
     )
@@ -147,7 +158,8 @@ with DAG(
     """
 
     var_1 = test_connection_python
-    var_2 = retrieve_images
+    var_2 = print_envs_pod
+    var_3 = retrieve_images
     #var_3 = retrieve_images_one_env
 
     # volume_mount = k8s_models.V1VolumeMount(
