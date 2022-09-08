@@ -15,7 +15,7 @@ airflow_secrets = json.loads(os.environ["AIRFLOW__SECRETS__BACKEND_KWARGS"])
 KVUri = airflow_secrets["vault_url"]
 print(f"KVURI is {KVUri}")
 
-client = SecretClient(vault_url=KVUri, credential=credential)
+client = SecretClient(vault_url=f"{KVUri}", credential=credential)
 
 username_secret = client.get_secret("CloudVpsRawUsername")
 try:
