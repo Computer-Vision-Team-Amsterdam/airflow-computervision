@@ -180,8 +180,9 @@ with DAG(
 
     var_1 = test_connection_python
     var_2 = print_envs_pod
-    var_3 = retrieve_images
-    #var_3 = retrieve_images_one_env
+    #var_3 = retrieve_images
+    var_4 = print_path_to_env
+    var_5 = print_python_path
 
     # volume_mount = k8s_models.V1VolumeMount(
     #     name="dags-pv",
