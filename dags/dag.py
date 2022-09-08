@@ -14,6 +14,7 @@ from pathlib import Path
 from airflow import DAG
 
 from airflow.operators.python import PythonOperator
+from airflow.operators.bash import BashOperator
 from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
     KubernetesPodOperator,
 )
@@ -135,8 +136,8 @@ with DAG(
         image="cvtweuacrogidgmnhwma3zq.azurecr.io/retrieve-images:latest",
         env_vars=all_env_vars,
         hostnetwork=True,
-        cmds=["which python"],
-        #arguments=["which python"],
+        cmds=["bash", "-cx"],
+        arguments=["printenv"],
         namespace="airflow-cvision2",
         get_logs=True
     )
@@ -148,11 +149,19 @@ with DAG(
         env_vars=all_env_vars,
         hostnetwork=True,
         in_cluster=True,
-        cmds=["ls"],
-        arguments=["opt/venv/bin/"],
+        cmds=["python"],
+        arguments=["retrieve_images.py"],
         namespace="airflow-cvision2",
         get_logs=True
     )
+    print_path_to_env = BashOperator(
+        task_id="print_path_to_env",
+        bash_command="ls /opt/venv/bin/")
+
+    print_python_path = BashOperator(
+        task_id="print_python_path",
+        bash_command="which python")
+
     """
     
     retrieve_images_one_env = KubernetesPodOperator(
