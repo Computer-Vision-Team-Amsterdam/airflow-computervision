@@ -33,7 +33,15 @@ password_secret = client.get_secret(name="CloudVpsRawPassword")
 USERNAME = username_secret.value
 PASSWORD = password_secret.value
 
-all_variables = dict(os.environ)
+container_vars = {
+    "AZURE_OTAP_ENVIRONMENT": os.getenv("AZURE_OTAP_ENVIRONMENT"),
+    "AZURE_TENANT_ID": os.getenv("AZURE_TENANT_ID"),
+    "AZURE_AAD_APP_REGISTRATIE_AIRFLOW_KEY": os.getenv("AZURE_AAD_APP_REGISTRATIE_AIRFLOW_KEY"),
+    "AZURE_AAD_APP_REGISTRATIE_AIRFLOW_ID": os.getenv("AZURE_AAD_APP_REGISTRATIE_AIRFLOW_ID"),
+    "AIRFLOW__SECRETS__BACKEND": os.getenv("AIRFLOW__SECRETS__BACKEND"),
+    "AIRFLOW__SECRETS__BACKEND_KWARGS": os.getenv("AIRFLOW__SECRETS__BACKEND_KWARGS"),
+                }
+
 
 def split_pano_id(pano_id: str) -> Tuple[str, str]:
     """
@@ -122,7 +130,7 @@ with DAG(
         name="print_envs_pod",
         task_id="print_envs_pod",
         image="cvtweuacrogidgmnhwma3zq.azurecr.io/retrieve-images:latest",
-        env_vars=all_variables,
+        env_vars=container_vars,
         hostnetwork=True,
         cmds=["bash", "-cx"],
         arguments=["printenv"],
@@ -134,7 +142,7 @@ with DAG(
         name="retrieve_images",
         task_id="retrieve_images",
         image="cvtweuacrogidgmnhwma3zq.azurecr.io/retrieve-images:latest",
-        env_vars=all_variables,
+        env_vars=container_vars,
         hostnetwork=True,
         cmds=["python"],
         arguments=["retrieve_images.py"],
