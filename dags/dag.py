@@ -37,6 +37,7 @@ PASSWORD = password_secret.value
 container_vars = {
     "AZURE_CLIENT_ID": os.getenv("AZURE_CLIENT_ID"),
     "AZURE_TENANT_ID": os.getenv("AZURE_TENANT_ID"),
+    "AIRFLOW__SECRETS__BACKEND_KWARGS": os.getenv("AIRFLOW__SECRETS__BACKEND_KWARGS")
     }
 
 
