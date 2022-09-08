@@ -45,7 +45,7 @@ def split_pano_id(pano_id: str) -> Tuple[str, str]:
 
 
 def download_panorama_from_cloudvps(
-        date: datetime, panorama_id: str, output_dir: Path = Path("./retrieved_images")
+        date: datetime, panorama_id: str, output_dir: Path = Path(".")
 ) -> None:
     """
     Downloads panorama from cloudvps to local folder.
