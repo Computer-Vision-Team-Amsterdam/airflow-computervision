@@ -17,7 +17,7 @@ print(f"KVURI is {KVUri}")
 
 client = SecretClient(vault_url=KVUri, credential=credential)
 
-username_secret = client.get_secret(name="CloudVpsRawUsername")
+username_secret = client.get_secret("CloudVpsRawUsername")
 try:
     print(f"username is {json.loads(username_secret.value)}")
 except:
