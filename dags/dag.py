@@ -45,7 +45,6 @@ container_vars = {
                 }
 
 all_env_vars = dict(os.environ)
-#all_env_vars.pop("PATH", None)
 
 def split_pano_id(pano_id: str) -> Tuple[str, str]:
     """
@@ -146,23 +145,23 @@ with DAG(
         name="retrieve-images",
         task_id="retrieve_images",
         image="cvtweuacrogidgmnhwma3zq.azurecr.io/retrieve-images:latest",
-        env_vars=all_env_vars,
         hostnetwork=True,
         in_cluster=True,
-        cmds=["python"],
-        arguments=["retrieve_images.py"],
+        cmds=["bash", "-cx"],
+        arguments=["printenv"],
         namespace="airflow-cvision2",
         get_logs=True
     )
+    """
     print_path_to_env = BashOperator(
         task_id="print_path_to_env",
-        bash_command="ls /opt/venv/bin/")
+        bash_command="ls /opt/venv/bin/") # not found!
 
     print_python_path = BashOperator(
         task_id="print_python_path",
-        bash_command="which python")
+        bash_command="which python") # /usr/local/bin/python
 
-    """
+    
     
     retrieve_images_one_env = KubernetesPodOperator(
         name="test-cloudvps-connection-one-env",
@@ -181,8 +180,8 @@ with DAG(
     var_1 = test_connection_python
     var_2 = print_envs_pod
     #var_3 = retrieve_images
-    var_4 = print_path_to_env
-    var_5 = print_python_path
+    #var_4 = print_path_to_env
+    #var_5 = print_python_path
 
     # volume_mount = k8s_models.V1VolumeMount(
     #     name="dags-pv",
