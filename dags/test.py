@@ -15,9 +15,9 @@ airflow_secrets = json.loads(os.environ["AIRFLOW__SECRETS__BACKEND_KWARGS"])
 KVUri = airflow_secrets["vault_url"]
 print(f"KVURI is {KVUri}")
 
-client = SecretClient(vault_url=f"{KVUri}", credential=credential)
+client = SecretClient(vault_url="https://kv-cvision2-ont-weu-01.vault.azure.net", credential=credential)
 
-username_secret = client.get_secret("CloudVpsRawUsername")
+username_secret = client.get_secret(name="CloudVpsRawUsername")
 try:
     print(f"username is {json.loads(username_secret.value)}")
 except:
