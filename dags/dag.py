@@ -18,8 +18,8 @@ from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
 )
 from common import MessageOperator
 
-variables = {"AZURE_CLIENT_ID": os.getenv("AZURE_CLIENT_ID")}
-all_variables = dict(os.environ)
+container_vars = {"AZURE_CLIENT_ID": os.getenv("AZURE_CLIENT_ID")}
+# all_variables = dict(os.environ)
 """
 def test_connection_python():
 
@@ -85,8 +85,9 @@ with DAG(
         name="test-cloudvps-connection-one-env",
         task_id="test_cloudvps_connection-one-env",
         image="cvtweuacrogidgmnhwma3zq.azurecr.io/retrieve-images:latest",
-        env_vars=variables,
+        env_vars=container_vars,
         hostnetwork=True,
+        in_cluster=True,
         cmds=["python"],
         arguments=["retrieve_images.py"],
         namespace="airflow-cvision2",
