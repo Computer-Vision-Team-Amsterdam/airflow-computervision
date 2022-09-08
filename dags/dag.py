@@ -33,6 +33,7 @@ password_secret = client.get_secret(name="CloudVpsRawPassword")
 USERNAME = username_secret.value
 PASSWORD = password_secret.value
 
+all_variables = dict(os.environ)
 
 def split_pano_id(pano_id: str) -> Tuple[str, str]:
     """
@@ -117,19 +118,20 @@ with DAG(
         python_callable=test_connection_python
     )
 
-    """
+
     retrieve_images = KubernetesPodOperator(
         name="test-cloudvps-connection",
         task_id="test_cloudvps_connection",
         image="cvtweuacrogidgmnhwma3zq.azurecr.io/retrieve-images:latest",
         env_vars=all_variables,
         hostnetwork=True,
-        cmds=["python"],
-        arguments=["retrieve_images.py"],
+        cmds=["bash", "-cx"],
+        arguments=["printenv"],
         namespace="airflow-cvision2",
         get_logs=True
     )
-
+    """
+    
     retrieve_images_one_env = KubernetesPodOperator(
         name="test-cloudvps-connection-one-env",
         task_id="test_cloudvps_connection-one-env",
@@ -145,7 +147,7 @@ with DAG(
     """
 
     var_1 = test_connection_python
-    #var_2 = retrieve_images
+    var_2 = retrieve_images
     #var_3 = retrieve_images_one_env
 
     # volume_mount = k8s_models.V1VolumeMount(
