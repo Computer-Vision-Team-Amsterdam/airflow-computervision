@@ -19,7 +19,7 @@ from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
 from common import MessageOperator
 
 container_vars = {"AZURE_CLIENT_ID": os.getenv("AZURE_CLIENT_ID")}
-# all_variables = dict(os.environ)
+all_variables = dict(os.environ)
 """
 def test_connection_python():
 
