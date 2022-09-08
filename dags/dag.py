@@ -145,17 +145,19 @@ with DAG(
         name="retrieve-images",
         task_id="retrieve_images",
         image="cvtweuacrogidgmnhwma3zq.azurecr.io/retrieve-images:latest",
+        env_vars=container_vars,
         hostnetwork=True,
         in_cluster=True,
-        cmds=["bash", "-cx"],
-        arguments=["printenv"],
+        cmds=["python"],
+        arguments=["retrieve_images.py"],
         namespace="airflow-cvision2",
         get_logs=True
     )
 
+    """
     print_pwd = BashOperator(
         task_id="print_pwd",
-        bash_command="pwd")
+        bash_command="pwd")  # /tmp/airflowtmpt2sxtqg3
 
     print_root = BashOperator(
         task_id="print_root",
@@ -168,7 +170,7 @@ with DAG(
     print_python_path = BashOperator(
         task_id="print_python_path",
         bash_command="which python") # /usr/local/bin/python
-
+    """
     
     """
     retrieve_images_one_env = KubernetesPodOperator(
@@ -187,11 +189,8 @@ with DAG(
 
     var_1 = test_connection_python
     var_2 = print_envs_pod
-    #var_3 = retrieve_images
-    var_4 = print_path_to_env
-    var_5 = print_python_path
-    var_6 = print_pwd
-    var_7 = print_root
+    var_3 = retrieve_images
+
 
     # volume_mount = k8s_models.V1VolumeMount(
     #     name="dags-pv",
