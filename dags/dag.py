@@ -136,7 +136,7 @@ with DAG(
         env_vars=all_env_vars,
         hostnetwork=True,
         cmds=["bash", "-cx"],
-        arguments=["echo $AZURE_CLIENT_ID"],
+        arguments=["echo $PATH"],
         namespace="airflow-cvision2",
         get_logs=True
     )
