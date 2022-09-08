@@ -43,6 +43,8 @@ container_vars = {
     "AIRFLOW__SECRETS__BACKEND_KWARGS": os.getenv("AIRFLOW__SECRETS__BACKEND_KWARGS"),
                 }
 
+all_env_vars = dict(os.environ)
+all_env_vars.pop("PATH", None)
 
 def split_pano_id(pano_id: str) -> Tuple[str, str]:
     """
@@ -131,7 +133,7 @@ with DAG(
         name="print_envs_pod",
         task_id="print_envs_pod",
         image="cvtweuacrogidgmnhwma3zq.azurecr.io/retrieve-images:latest",
-        env_vars=container_vars,
+        env_vars=all_env_vars,
         hostnetwork=True,
         cmds=["bash", "-cx"],
         arguments=["printenv"],
@@ -143,7 +145,7 @@ with DAG(
         name="retrieve_images",
         task_id="retrieve_images",
         image="cvtweuacrogidgmnhwma3zq.azurecr.io/retrieve-images:latest",
-        env_vars=container_vars,
+        env_vars=all_env_vars,
         hostnetwork=True,
         cmds=["python"],
         arguments=["retrieve_images.py"],
