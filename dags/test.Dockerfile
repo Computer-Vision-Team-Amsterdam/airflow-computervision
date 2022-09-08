@@ -7,8 +7,3 @@ RUN pip install \
 WORKDIR /opt
 COPY test.py /opt
 
-RUN useradd appuser
-# needed in this case to get access look through the folders
-RUN chown -R appuser /opt
-RUN chmod 755 /opt
-USER appuser

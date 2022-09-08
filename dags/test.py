@@ -15,13 +15,14 @@ airflow_secrets = json.loads(os.environ["AIRFLOW__SECRETS__BACKEND_KWARGS"])
 KVUri = airflow_secrets["vault_url"]
 print(f"KVURI is {KVUri}")
 
+"""
 client = SecretClient(vault_url=KVUri, credential=credential)
 
 username_secret = client.get_secret(name="CloudVpsRawUsername")
 password_secret = client.get_secret(name="CloudVpsRawPassword")
 
 socket.setdefaulttimeout(100)
-
 BASE_URL = f"https://3206eec333a04cc980799f75a593505a.objectstore.eu/intermediate/"
 USERNAME = username_secret.value
 PASSWORD = password_secret.value
+"""
