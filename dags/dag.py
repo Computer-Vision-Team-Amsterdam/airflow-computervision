@@ -44,7 +44,7 @@ container_vars = {
                 }
 
 all_env_vars = dict(os.environ)
-all_env_vars.pop("PATH", None)
+#all_env_vars.pop("PATH", None)
 
 def split_pano_id(pano_id: str) -> Tuple[str, str]:
     """
@@ -142,11 +142,12 @@ with DAG(
     )
 
     retrieve_images = KubernetesPodOperator(
-        name="retrieve_images",
+        name="retrieve-images",
         task_id="retrieve_images",
         image="cvtweuacrogidgmnhwma3zq.azurecr.io/retrieve-images:latest",
         env_vars=all_env_vars,
         hostnetwork=True,
+        in_cluster=True,
         cmds=["python"],
         arguments=["retrieve_images.py"],
         namespace="airflow-cvision2",
