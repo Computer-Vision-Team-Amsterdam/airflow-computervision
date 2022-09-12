@@ -11,6 +11,8 @@ for k, v in os.environ.items():
 credential = DefaultAzureCredential()
 # KVUri = f"https://kv-cvision2-ont-weu-01.vault.azure.net"
 
+print(credential.expires_on)
+
 airflow_secrets = json.loads(os.environ["AIRFLOW__SECRETS__BACKEND_KWARGS"])
 KVUri = airflow_secrets["vault_url"]
 print(f"KVURI is {KVUri}")
