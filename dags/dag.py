@@ -36,6 +36,7 @@ PASSWORD = password_secret.value
 container_vars = {
     "AZURE_CLIENT_ID": os.getenv("AZURE_CLIENT_ID"),
     "AZURE_TENANT_ID": os.getenv("AZURE_TENANT_ID"),
+    "AIRFLOW__SECRETS__BACKEND": os.getenv("AIRFLOW__SECRETS__BACKEND"),
     "AIRFLOW__SECRETS__BACKEND_KWARGS": os.getenv("AIRFLOW__SECRETS__BACKEND_KWARGS")
     }
 
@@ -126,8 +127,6 @@ with DAG(
         task_id="test_connection_python",
         python_callable=test_connection_python
     )
-    
-
 
     test = KubernetesPodOperator(
         name="test",
@@ -141,6 +140,24 @@ with DAG(
         get_logs=True
     )
 
+    write_xcom = KubernetesPodOperator(
+        namespace='default',
+        image='alpine',
+        cmds=["sh", "-c", "mkdir -p /airflow/xcom/;echo '[1,2,3,4]' > /airflow/xcom/return.json"],
+        name="write-xcom",
+        do_xcom_push=True,
+        is_delete_operator_pod=True,
+        in_cluster=True,
+        task_id="write-xcom",
+        get_logs=True,
+    )
+
+    pod_task_xcom_result = BashOperator(
+        bash_command="echo \"{{ task_instance.xcom_pull('write-xcom')[0] }}\"",
+        task_id="pod_task_xcom_result",
+    )
+
+    xcom = write_xcom >> pod_task_xcom_result
     var_0 = test_connection_python
     var = test
 
