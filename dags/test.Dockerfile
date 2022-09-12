@@ -5,5 +5,9 @@ RUN pip install \
     azure-keyvault-secrets==4.5.1
 
 WORKDIR /opt
+
+# creating the file to write XComs to
+RUN mkdir -p airflow/xcom
+RUN echo "" > airflow/xcom/return.json
 COPY test.py /opt
 

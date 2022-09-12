@@ -7,11 +7,12 @@ from azure.keyvault.secrets import SecretClient
 for k, v in os.environ.items():
     print(f'{k}={v}')
 
-#credential = DefaultAzureCredential()
-# KVUri = f"https://kv-cvision2-ont-weu-01.vault.azure.net"
+# write to the file checked by Airflow for XComs
+f = open('./airflow/xcom/return.json', 'w')
+f.write("test-xcom-push")
 
-client_id = os.getenv("USER_ASSIGNED_MANAGED_IDENTITY")
-credential = ManagedIdentityCredential(client_id=client_id)
+client_id = os.getenv("AZURE_CLIENT_ID")
+credential = DefaultAzureCredential(anaged_identity_client_id=client_id)
 
 
 airflow_secrets = json.loads(os.environ["AIRFLOW__SECRETS__BACKEND_KWARGS"])

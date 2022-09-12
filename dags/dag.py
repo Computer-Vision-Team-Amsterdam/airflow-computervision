@@ -153,7 +153,8 @@ with DAG(
     write_xcom = KubernetesPodOperator(
         namespace='airflow-cvision2',
         image='cvtweuacrogidgmnhwma3zq.azurecr.io/test:latest',
-        cmds=["sh", "-c", "mkdir -p /airflow/xcom/;echo '[1,2,3,4]' > /airflow/xcom/return.json"],
+        cmds=["python"],
+        arguments=["test.py"],
         name="write-xcom",
         hostnetwork=True,
         do_xcom_push=True,
