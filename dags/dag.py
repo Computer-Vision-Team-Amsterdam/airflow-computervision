@@ -139,18 +139,20 @@ with DAG(
         name="test",
         task_id="test",
         image="cvtweuacrogidgmnhwma3zq.azurecr.io/test:latest",
+        image_pull_policy="Always",
         env_vars=container_vars,
         hostnetwork=True,
+        in_cluster=True,
         cmds=["python"],
         arguments=["test.py"],
         namespace="airflow-cvision2",
         get_logs=True
     )
 
-    """
+
     write_xcom = KubernetesPodOperator(
         namespace='airflow-cvision2',
-        image='alpine',
+        image='cvtweuacrogidgmnhwma3zq.azurecr.io/test:latest',
         cmds=["sh", "-c", "mkdir -p /airflow/xcom/;echo '[1,2,3,4]' > /airflow/xcom/return.json"],
         name="write-xcom",
         hostnetwork=True,
@@ -167,7 +169,7 @@ with DAG(
     )
 
     xcom = write_xcom >> pod_task_xcom_result
-    """
+
     var_0 = test_connection_python
     var = test
 
