@@ -1,17 +1,19 @@
 import json
 import os
 import socket
-
-from azure.identity import DefaultAzureCredential
+from environs import Env
+from azure.identity import DefaultAzureCredential, ManagedIdentityCredential
 from azure.keyvault.secrets import SecretClient
 
 for k, v in os.environ.items():
     print(f'{k}={v}')
 
-credential = DefaultAzureCredential()
+#credential = DefaultAzureCredential()
 # KVUri = f"https://kv-cvision2-ont-weu-01.vault.azure.net"
 
-print(credential.expires_on)
+client_id = Env('CLIENT_ID')
+credential = ManagedIdentityCredential(client_id=client_id)
+
 
 airflow_secrets = json.loads(os.environ["AIRFLOW__SECRETS__BACKEND_KWARGS"])
 KVUri = airflow_secrets["vault_url"]
