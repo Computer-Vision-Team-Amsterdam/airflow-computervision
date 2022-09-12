@@ -17,16 +17,10 @@ print(f"KVURI is {KVUri}")
 
 client = SecretClient(vault_url="https://kv-cvision2-ont-weu-01.vault.azure.net", credential=credential)
 
-username_secret = client.get_secret(name="CloudVpsRawUsername")
-try:
-    print(f"username is {json.loads(username_secret.value)}")
-except:
-    print("first way of printing is wrong")
+client.set_secret("test", "secret")
+retrieved_secret = client.get_secret("test")
+print(f"Secret is {retrieved_secret}")
 
-try:
-    print(f"username is {username_secret.value}")
-except:
-    print("second way of printing is wrong")
 """
 password_secret = client.get_secret(name="CloudVpsRawPassword")
 
