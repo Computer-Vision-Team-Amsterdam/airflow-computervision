@@ -24,7 +24,6 @@ BASE_URL = f"https://3206eec333a04cc980799f75a593505a.objectstore.eu/intermediat
 
 airflow_secrets = json.loads(os.environ["AIRFLOW__SECRETS__BACKEND_KWARGS"])
 KVUri = airflow_secrets["vault_url"]
-print(f"python KVUri is {KVUri}")
 credential = DefaultAzureCredential()
 client = SecretClient(vault_url=KVUri, credential=credential)
 
@@ -80,6 +79,8 @@ def download_panorama_from_cloudvps(
         del response
 
         print(f"{panorama_id} completed.")
+        print(f"python KVUri is {KVUri}")
+
     except Exception as e:
         print(f"Failed for panorama {panorama_id}:\n{e}")
 
