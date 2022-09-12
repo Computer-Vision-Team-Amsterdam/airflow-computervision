@@ -186,15 +186,12 @@ with DAG(
     push_task = PythonOperator(
         task_id='push_task',
         python_callable=push_function,
-        provide_context=True,
-        dag=DAG)
-
+        provide_context=True)
 
     pull_task = PythonOperator(
         task_id='pull_task',
         python_callable=pull_function,
-        provide_context=True,
-        dag=DAG)
+        provide_context=True)
 
     xcom = push_task >> pull_task
     var_0 = test_connection_python
