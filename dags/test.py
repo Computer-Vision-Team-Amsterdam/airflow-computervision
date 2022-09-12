@@ -1,7 +1,6 @@
 import json
 import os
 import socket
-from environs import Env
 from azure.identity import DefaultAzureCredential, ManagedIdentityCredential
 from azure.keyvault.secrets import SecretClient
 
@@ -11,7 +10,7 @@ for k, v in os.environ.items():
 #credential = DefaultAzureCredential()
 # KVUri = f"https://kv-cvision2-ont-weu-01.vault.azure.net"
 
-client_id = Env('CLIENT_ID')
+client_id = os.getenv("USER_ASSIGNED_MANAGED_IDENTITY")
 credential = ManagedIdentityCredential(client_id=client_id)
 
 

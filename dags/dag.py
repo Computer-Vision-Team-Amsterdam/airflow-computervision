@@ -27,6 +27,7 @@ KVUri = airflow_secrets["vault_url"]
 credential = DefaultAzureCredential()
 client = SecretClient(vault_url=KVUri, credential=credential)
 
+
 username_secret = client.get_secret(name="CloudVpsRawUsername")
 password_secret = client.get_secret(name="CloudVpsRawPassword")
 
@@ -37,7 +38,8 @@ container_vars = {
     "AZURE_CLIENT_ID": os.getenv("AZURE_CLIENT_ID"),
     "AZURE_TENANT_ID": os.getenv("AZURE_TENANT_ID"),
     "AIRFLOW__SECRETS__BACKEND": os.getenv("AIRFLOW__SECRETS__BACKEND"),
-    "AIRFLOW__SECRETS__BACKEND_KWARGS": os.getenv("AIRFLOW__SECRETS__BACKEND_KWARGS")
+    "AIRFLOW__SECRETS__BACKEND_KWARGS": os.getenv("AIRFLOW__SECRETS__BACKEND_KWARGS"),
+    "USER_ASSIGNED_MANAGED_IDENTITY": os.getenv("USER_ASSIGNED_MANAGED_IDENTITY")
     }
 
 
@@ -140,6 +142,7 @@ with DAG(
         get_logs=True
     )
 
+    """
     write_xcom = KubernetesPodOperator(
         namespace='airflow-cvision2',
         image='alpine',
@@ -159,6 +162,7 @@ with DAG(
     )
 
     xcom = write_xcom >> pod_task_xcom_result
+    """
     var_0 = test_connection_python
     var = test
 
