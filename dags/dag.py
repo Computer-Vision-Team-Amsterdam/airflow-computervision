@@ -24,7 +24,7 @@ BASE_URL = f"https://3206eec333a04cc980799f75a593505a.objectstore.eu/intermediat
 
 airflow_secrets = json.loads(os.environ["AIRFLOW__SECRETS__BACKEND_KWARGS"])
 KVUri = airflow_secrets["vault_url"]
-
+print(f"python KVUri is {KVUri}")
 credential = DefaultAzureCredential()
 client = SecretClient(vault_url=KVUri, credential=credential)
 
@@ -120,13 +120,13 @@ with DAG(
         task_id="slack_at_start",
     )
    
-
+    """
     test_connection_python = PythonOperator(
         task_id="test_connection_python",
         python_callable=test_connection_python
     )
     
-     """
+
 
     test = KubernetesPodOperator(
         name="test",
@@ -140,6 +140,7 @@ with DAG(
         get_logs=True
     )
 
+    var_0 = test_connection_python
     var = test
 
 
