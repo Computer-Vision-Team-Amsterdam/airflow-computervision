@@ -141,10 +141,11 @@ with DAG(
     )
 
     write_xcom = KubernetesPodOperator(
-        namespace='default',
+        namespace='airflow-cvision2',
         image='alpine',
         cmds=["sh", "-c", "mkdir -p /airflow/xcom/;echo '[1,2,3,4]' > /airflow/xcom/return.json"],
         name="write-xcom",
+        hostnetwork=True,
         do_xcom_push=True,
         is_delete_operator_pod=True,
         in_cluster=True,
