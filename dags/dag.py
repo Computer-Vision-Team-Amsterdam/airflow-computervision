@@ -48,6 +48,17 @@ container_vars = {
     }
 
 
+def pull_function(**kwargs):
+    ti = kwargs['ti']
+    ls = ti.xcom_pull(task_ids='push_task')
+    print(ls)
+
+
+def push_function(**kwargs):
+    ls = ['a', 'b', 'c']
+    return ls
+
+
 def split_pano_id(pano_id: str) -> Tuple[str, str]:
     """
     Splits name of the panorama in TMX* and pano*
@@ -172,23 +183,11 @@ with DAG(
     xcom = write_xcom >> pod_task_xcom_result
     """
 
-
-    def push_function(**kwargs):
-        ls = ['a', 'b', 'c']
-        return ls
-
-
     push_task = PythonOperator(
         task_id='push_task',
         python_callable=push_function,
         provide_context=True,
         dag=DAG)
-
-
-    def pull_function(**kwargs):
-        ti = kwargs['ti']
-        ls = ti.xcom_pull(task_ids='push_task')
-        print(ls)
 
 
     pull_task = PythonOperator(
