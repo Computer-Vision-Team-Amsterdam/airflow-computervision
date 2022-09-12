@@ -8,7 +8,7 @@ from requests.auth import HTTPBasicAuth
 
 from datetime import datetime, timedelta
 
-from azure.identity import DefaultAzureCredential
+from azure.identity import DefaultAzureCredential, ManagedIdentityCredential
 from azure.keyvault.secrets import SecretClient
 from pathlib import Path
 from airflow import DAG
@@ -24,7 +24,12 @@ BASE_URL = f"https://3206eec333a04cc980799f75a593505a.objectstore.eu/intermediat
 
 airflow_secrets = json.loads(os.environ["AIRFLOW__SECRETS__BACKEND_KWARGS"])
 KVUri = airflow_secrets["vault_url"]
-credential = DefaultAzureCredential()
+
+#credential = DefaultAzureCredential()
+client_id = os.getenv("USER_ASSIGNED_MANAGED_IDENTITY")
+print(f"user MI is {client_id}")
+credential = ManagedIdentityCredential(client_id=client_id)
+
 client = SecretClient(vault_url=KVUri, credential=credential)
 
 
