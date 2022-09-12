@@ -149,7 +149,7 @@ with DAG(
         get_logs=True
     )
 
-
+    """
     write_xcom = KubernetesPodOperator(
         namespace='airflow-cvision2',
         image='cvtweuacrogidgmnhwma3zq.azurecr.io/test:latest',
@@ -170,7 +170,34 @@ with DAG(
     )
 
     xcom = write_xcom >> pod_task_xcom_result
+    """
 
+
+    def push_function(**kwargs):
+        ls = ['a', 'b', 'c']
+        return ls
+
+
+    push_task = PythonOperator(
+        task_id='push_task',
+        python_callable=push_function,
+        provide_context=True,
+        dag=DAG)
+
+
+    def pull_function(**kwargs):
+        ti = kwargs['ti']
+        ls = ti.xcom_pull(task_ids='push_task')
+        print(ls)
+
+
+    pull_task = PythonOperator(
+        task_id='pull_task',
+        python_callable=pull_function,
+        provide_context=True,
+        dag=DAG)
+
+    xcom = push_task >> pull_task
     var_0 = test_connection_python
     var = test
 
