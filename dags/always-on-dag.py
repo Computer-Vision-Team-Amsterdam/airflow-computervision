@@ -59,7 +59,6 @@ with DAG(
             namespace=AKS_NAMESPACE,
             image=CONTAINER_IMAGE,
             cmds=COMMAND_TO_EXECUTE,
-            arguments=COMMAND_ARGS,
             labels=DAG_LABEL,
             name=DAG_ID,
             # Determines when to pull a fresh image, if 'IfNotPresent' will cause
