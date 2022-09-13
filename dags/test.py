@@ -12,7 +12,7 @@ f = open('./airflow/xcom/return.json', 'w')
 f.write("test-xcom-push")
 """
 client_id = os.getenv("AZURE_CLIENT_ID")
-credential = DefaultAzureCredential(anaged_identity_client_id=client_id)
+credential = DefaultAzureCredential(managed_identity_client_id=client_id)
 
 
 airflow_secrets = json.loads(os.environ["AIRFLOW__SECRETS__BACKEND_KWARGS"])
