@@ -12,6 +12,7 @@ for k, v in os.environ.items():
 f = open('./airflow/xcom/return.json', 'w')
 f.write("test-xcom-push")
 """
+print(f"***************** THIS IS THE TEST.PY CODE*******************************")
 client_id = os.getenv("USER_ASSIGNED_MANAGED_IDENTITY")
 credential = ManagedIdentityCredential(client_id=client_id)
 
@@ -22,8 +23,6 @@ print(f"KVURI is {KVUri}")
 
 client = SecretClient(vault_url="https://kv-cvision2-ont-weu-01.vault.azure.net", credential=credential)
 
-#client.set_secret("test", "secret")
-#retrieved_secret = client.get_secret("test")
 retrieved_secret = client.get_secret(name="CloudVpsRawUsername")
 print(f"Secret is {retrieved_secret.value}")
 
