@@ -1,7 +1,7 @@
 import os
 from datetime import timedelta
-from pathlib import Path
 from typing import Final, Optional
+from airflow.utils.dates import days_ago
 
 from airflow import DAG
 from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
@@ -41,6 +41,7 @@ with DAG(
         'email_on_retry': False,
         'retries': 1,
         'retry_delay': timedelta(minutes=5),
+        'start_date': days_ago(1),
         # 'queue': 'bash_queue',
         # 'pool': 'backfill',
         # 'priority_weight': 10,
