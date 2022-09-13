@@ -22,8 +22,7 @@ AZURE_OTAP_ENVIRONMENT: Optional[str] = os.getenv("AZURE_OTAP_ENVIRONMENT")
 CONTAINER_IMAGE: Optional[str] = 'crdavebbn1ontweu01.azurecr.io/airflow-benk-iburgerzaken:latest'
 
 # Command that you want to run on container start
-COMMAND_TO_EXECUTE: list = ["sh"]
-COMMAND_ARGS:list = ["tail -f /dev/null"]
+COMMAND_TO_EXECUTE: list = ["sh", "tail", "-f", "/dev/null"]
 DAG_ID: Final = "test_dag_always_on"
 DATATEAM_OWNER: Final = "cvision2"
 DAG_LABEL: Final = {"team_name": DATATEAM_OWNER}
