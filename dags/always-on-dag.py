@@ -19,11 +19,11 @@ from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
 AZURE_OTAP_ENVIRONMENT: Optional[str] = os.getenv("AZURE_OTAP_ENVIRONMENT")
 
 # [registry]/[imagename]:[tag]
-CONTAINER_IMAGE: Optional[str] = 'crdavebbn1ontweu01.azurecr.io/test:latest'
+CONTAINER_IMAGE: Optional[str] = 'crdavebbn1ontweu01.azurecr.io/airflow-benk-iburgerzaken:latest'
 
 # Command that you want to run on container start
-COMMAND_TO_EXECUTE: list = ["sh", "tail -f /dev/null"]
-
+COMMAND_TO_EXECUTE: list = ["sh"]
+COMMAND_ARGS:list = ["tail -f /dev/null"]
 DAG_ID: Final = "test_dag_always_on"
 DATATEAM_OWNER: Final = "cvision2"
 DAG_LABEL: Final = {"team_name": DATATEAM_OWNER}
@@ -60,6 +60,7 @@ with DAG(
             namespace=AKS_NAMESPACE,
             image=CONTAINER_IMAGE,
             cmds=COMMAND_TO_EXECUTE,
+            arguments=COMMAND_ARGS,
             labels=DAG_LABEL,
             name=DAG_ID,
             # Determines when to pull a fresh image, if 'IfNotPresent' will cause
