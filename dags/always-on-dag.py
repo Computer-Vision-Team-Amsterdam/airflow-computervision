@@ -58,7 +58,9 @@ with DAG(
             task_id='test-step-using-k8podoperator',
             namespace=AKS_NAMESPACE,
             image=CONTAINER_IMAGE,
-            cmds=COMMAND_TO_EXECUTE,
+            # cmds=COMMAND_TO_EXECUTE,
+            cmds=["/bin/bash", "-c"],
+            arguments=["tail -f /dev/null"],
             labels=DAG_LABEL,
             name=DAG_ID,
             # Determines when to pull a fresh image, if 'IfNotPresent' will cause
