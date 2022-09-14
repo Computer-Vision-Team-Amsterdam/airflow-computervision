@@ -76,7 +76,6 @@ with DAG(
             arguments=COMMAND_ARGS_DATA_INGEST,
             # cmds=["/bin/bash", "-c"],
             # arguments=["tail -f /dev/null"],
-            cmds=['python']
             labels=DAG_LABEL,
             name=DAG_ID,
             # Determines when to pull a fresh image, if 'IfNotPresent' will cause
