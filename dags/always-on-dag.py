@@ -55,9 +55,6 @@ with DAG(
 ) as dag:
 
 
-    # Be ware! The resource limits below are based on a F8_V2 machine (8 cpu, 16GB mem)
-    # and sould be ajusted accordinly if changed.
-
     # 2. Excuting containers
     # The KubernetesPodOperator enables you to run containerized workloads as
     # pods on Kubernetes from your DAG.
@@ -66,6 +63,8 @@ with DAG(
             task_id='test-step-using-k8podoperator',
             namespace=AKS_NAMESPACE,
             image=CONTAINER_IMAGE,
+            # beware! If env vars are needed from worker,
+            # add them here.
             env_vars=get_generic_vars(),
             cmds=["/bin/bash", "-c"],
             arguments=["tail -f /dev/null"],
