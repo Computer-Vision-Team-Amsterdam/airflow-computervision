@@ -7,16 +7,6 @@ from airflow import DAG
 from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
     KubernetesPodOperator,
 )
-# from contact_point.callbacks import get_contact_point_on_failure_callback
-
-# below the modules as located at github.com/Amsterdam/dataservices-airflow
-# from common import (
-#     MessageOperator,
-#     default_args
-# )
-
-# environment where this DAG is loaded from
-AZURE_OTAP_ENVIRONMENT: Optional[str] = os.getenv("AZURE_OTAP_ENVIRONMENT")
 
 # [registry]/[imagename]:[tag]
 CONTAINER_IMAGE: Optional[str] = 'crdavebbn1ontweu01.azurecr.io/airflow-benk-iburgerzaken:test'
