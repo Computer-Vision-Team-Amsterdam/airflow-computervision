@@ -102,7 +102,7 @@ with DAG(
         )
 
     blur_images = KubernetesPodOperator(
-        task_id='retrieve_images',
+        task_id='blur_images',
         namespace=AKS_NAMESPACE,
         image=BLUR_CONTAINER_IMAGE,
         env_vars=None,
