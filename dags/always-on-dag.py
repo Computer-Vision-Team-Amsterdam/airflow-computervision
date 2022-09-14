@@ -9,7 +9,7 @@ from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
 )
 
 # [registry]/[imagename]:[tag]
-CONTAINER_IMAGE: Optional[str] = 'crdavebbn1ontweu01.azurecr.io/airflow-benk-iburgerzaken:test'
+CONTAINER_IMAGE: Optional[str] = 'crdavebbn1ontweu01.azurecr.io/cvision-delete-me-please:test'
 
 # Command that you want to run on container start
 DAG_ID: Final = "test_dag_always_on"
@@ -17,6 +17,12 @@ DATATEAM_OWNER: Final = "cvision2"
 DAG_LABEL: Final = {"team_name": DATATEAM_OWNER}
 AKS_NAMESPACE: Final = os.getenv("AIRFLOW__KUBERNETES__NAMESPACE")
 AKS_NODE_POOL: Final = "cvision2work"
+
+# Command that you want to run on container start
+COMMAND_TO_EXECUTE: list = ["python"]
+
+# Command arguments that will be used with command to execute on start
+COMMAND_ARGS_DATA_INGEST: list = ["/opt/test.py"]
 
 # List here all environment variables that also needs to be
 # used inside the K8PodOperator pod.
@@ -66,8 +72,11 @@ with DAG(
             # beware! If env vars are needed from worker,
             # add them here.
             env_vars=get_generic_vars(),
-            cmds=["/bin/bash", "-c"],
-            arguments=["tail -f /dev/null"],
+            cmds=COMMAND_TO_EXECUTE,
+            arguments=COMMAND_ARGS_DATA_INGEST,
+            # cmds=["/bin/bash", "-c"],
+            # arguments=["tail -f /dev/null"],
+            cmds=['python']
             labels=DAG_LABEL,
             name=DAG_ID,
             # Determines when to pull a fresh image, if 'IfNotPresent' will cause
