@@ -17,9 +17,9 @@ client_id = os.getenv("USER_ASSIGNED_MANAGED_IDENTITY")
 credential = ManagedIdentityCredential(client_id=client_id)
 
 
-airflow_secrets = json.loads(os.environ["AIRFLOW__SECRETS__BACKEND_KWARGS"])
-KVUri = airflow_secrets["vault_url"]
-print(f"KVURI is {KVUri}")
+#airflow_secrets = json.loads(os.environ["AIRFLOW__SECRETS__BACKEND_KWARGS"])
+#KVUri = airflow_secrets["vault_url"]
+#print(f"KVURI is {KVUri}")
 
 client = SecretClient(vault_url="https://kv-cvision2-ont-weu-01.vault.azure.net", credential=credential)
 

@@ -9,7 +9,7 @@ from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
 )
 
 # [registry]/[imagename]:[tag]
-CONTAINER_IMAGE: Optional[str] = 'crdavebbn1ontweu01.azurecr.io/cvision-delete-me-please:test'
+CONTAINER_IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/rebuilt:latest'
 
 # Command that you want to run on container start
 DAG_ID: Final = "test_dag_always_on"
