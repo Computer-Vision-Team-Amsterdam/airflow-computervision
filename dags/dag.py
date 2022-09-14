@@ -176,7 +176,7 @@ with DAG(
         hostnetwork=True,
         in_cluster=True,
         cmds=["python"],
-        arguments=["test.py"],
+        arguments=["/opt/test.py"],
         namespace="airflow-cvision2",
         get_logs=True,
         is_delete_operator_pod=False,
