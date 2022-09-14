@@ -39,6 +39,25 @@ password_secret = client.get_secret(name="CloudVpsRawPassword")
 USERNAME = username_secret.value
 PASSWORD = password_secret.value
 
+
+# List here all environment variables that also needs to be
+# used inside the K8PodOperator pod.
+GENERIC_VARS_NAMES: list = [
+    "USER_ASSIGNED_MANAGED_IDENTITY",
+]
+
+def get_generic_vars() -> dict[str, str]:
+    """Get generic environment variables all containers will need.
+    Note: The K8PodOperator spins up a new node. This node needs
+        to be fed with the nessacery env vars. Its not inheriting
+        it from his big brother/sister/neutral the worker pod.
+    :returns: All (generic) environment variables that need to be included into the container.
+    """
+    GENERIC_VARS_DICT: dict[str, str] = {
+        variable: os.environ[variable] for variable in GENERIC_VARS_NAMES
+    }
+    return GENERIC_VARS_DICT
+
 container_vars = {
     "AZURE_CLIENT_ID": os.getenv("AZURE_CLIENT_ID"),
     "AZURE_TENANT_ID": os.getenv("AZURE_TENANT_ID"),
@@ -151,7 +170,7 @@ with DAG(
         task_id="test",
         image="cvtweuacrogidgmnhwma3zq.azurecr.io/test:latest",
         image_pull_policy="Always",
-        env_vars=container_vars,
+        env_vars=get_generic_vars(),
         hostnetwork=True,
         in_cluster=True,
         cmds=["python"],
