@@ -28,6 +28,7 @@ COMMAND_ARGS_DATA_INGEST: list = ["/opt/test.py"]
 # used inside the K8PodOperator pod.
 GENERIC_VARS_NAMES: list = [
     "USER_ASSIGNED_MANAGED_IDENTITY",
+    "AIRFLOW__SECRETS__BACKEND_KWARGS",
 ]
 
 def get_generic_vars() -> dict[str, str]:
