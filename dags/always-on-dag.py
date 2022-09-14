@@ -19,7 +19,7 @@ from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
 AZURE_OTAP_ENVIRONMENT: Optional[str] = os.getenv("AZURE_OTAP_ENVIRONMENT")
 
 # [registry]/[imagename]:[tag]
-CONTAINER_IMAGE: Optional[str] = 'crdavebbn1ontweu01.azurecr.io/airflow-benk-iburgerzaken:latest'
+CONTAINER_IMAGE: Optional[str] = 'crdavebbn1ontweu01.azurecr.io/airflow-benk-iburgerzaken:test'
 
 # Command that you want to run on container start
 COMMAND_TO_EXECUTE: list = ["sh", "tail", "-f", "/dev/null"]
