@@ -182,7 +182,8 @@ with DAG(
         is_delete_operator_pod=False,
         dag=dag,
         reattach_on_restart=True,
-        startup_timeout_seconds=3600
+        startup_timeout_seconds=3600,
+        node_selector={"nodetype": "cvision2work"}
     )
 
     write_xcom = KubernetesPodOperator(
