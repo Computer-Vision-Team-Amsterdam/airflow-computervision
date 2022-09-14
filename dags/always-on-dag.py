@@ -12,7 +12,7 @@ from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
 CONTAINER_IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/rebuilt:latest'
 
 # Command that you want to run on container start
-DAG_ID: Final = "test_dag_always_on"
+DAG_ID: Final = "cvt-pipeline"
 DATATEAM_OWNER: Final = "cvision2"
 DAG_LABEL: Final = {"team_name": DATATEAM_OWNER}
 AKS_NAMESPACE: Final = os.getenv("AIRFLOW__KUBERNETES__NAMESPACE")
@@ -60,14 +60,8 @@ with DAG(
     template_searchpath=["/"],
     catchup=False,
 ) as dag:
-
-
-    # 2. Excuting containers
-    # The KubernetesPodOperator enables you to run containerized workloads as
-    # pods on Kubernetes from your DAG.
-    # Each task will be executed by a dedicated pod.
-    test_operator_always_on = KubernetesPodOperator(
-            task_id='test-step-using-k8podoperator',
+    retrieve_images = KubernetesPodOperator(
+            task_id='retrieve_images',
             namespace=AKS_NAMESPACE,
             image=CONTAINER_IMAGE,
             # beware! If env vars are needed from worker,
@@ -75,8 +69,6 @@ with DAG(
             env_vars=get_generic_vars(),
             cmds=COMMAND_TO_EXECUTE,
             arguments=COMMAND_ARGS_DATA_INGEST,
-            # cmds=["/bin/bash", "-c"],
-            # arguments=["tail -f /dev/null"],
             labels=DAG_LABEL,
             name=DAG_ID,
             # Determines when to pull a fresh image, if 'IfNotPresent' will cause
@@ -107,13 +99,10 @@ with DAG(
             # List of VolumeMount objects to pass to the Pod.
             volume_mounts=[],
         )
-        # get containers that are the first (marked with `_1` as a posfix) that will also
-        # add the header to the .csv file to be created
-
 
 # FLOW
 (
-    test_operator_always_on
+    retrieve_images
 )
 
 
