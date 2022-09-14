@@ -22,13 +22,31 @@ AZURE_OTAP_ENVIRONMENT: Optional[str] = os.getenv("AZURE_OTAP_ENVIRONMENT")
 CONTAINER_IMAGE: Optional[str] = 'crdavebbn1ontweu01.azurecr.io/airflow-benk-iburgerzaken:test'
 
 # Command that you want to run on container start
-COMMAND_TO_EXECUTE: list = ["sh", "tail", "-f", "/dev/null"]
 DAG_ID: Final = "test_dag_always_on"
 DATATEAM_OWNER: Final = "cvision2"
 DAG_LABEL: Final = {"team_name": DATATEAM_OWNER}
 AKS_NAMESPACE: Final = os.getenv("AIRFLOW__KUBERNETES__NAMESPACE")
 AKS_NODE_POOL: Final = "cvision2work"
 
+# List here all environment variables that also needs to be
+# used inside the K8PodOperator pod.
+GENERIC_VARS_NAMES: list = [
+    "USER_ASSIGNED_MANAGED_IDENTITY",
+]
+
+def get_generic_vars() -> dict[str, str]:
+    """Get generic environment variables all containers will need.
+
+    Note: The K8PodOperator spins up a new node. This node needs
+        to be fed with the nessacery env vars. Its not inheriting
+        it from his big brother/sister/neutral the worker pod.
+
+    :returns: All (generic) environment variables that need to be included into the container.
+    """
+    GENERIC_VARS_DICT: dict[str, str] = {
+        variable: os.environ[variable] for variable in GENERIC_VARS_NAMES
+    }
+    return GENERIC_VARS_DICT
 
 with DAG(
     DAG_ID,
@@ -58,7 +76,7 @@ with DAG(
             task_id='test-step-using-k8podoperator',
             namespace=AKS_NAMESPACE,
             image=CONTAINER_IMAGE,
-            #cmds=COMMAND_TO_EXECUTE,
+            env_vars=get_generic_vars(),
             cmds=["/bin/bash", "-c"],
             arguments=["tail -f /dev/null"],
             labels=DAG_LABEL,
