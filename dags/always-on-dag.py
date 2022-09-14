@@ -73,7 +73,7 @@ with DAG(
             # If true, logs stdout output of container. Defaults to True.
             get_logs=True,
             in_cluster=True,  # if true uses our service account token as aviable in Airflow on K8
-            is_delete_operator_pod=True,  # if true delete pod when pod reaches its final state.
+            is_delete_operator_pod=False,  # if true delete pod when pod reaches its final state.
             log_events_on_failure=True,  # if true log the pod’s events if a failure occurs
             hostnetwork=True,  # If True enable host networking on the pod. Be ware, this value must be
             # set to true if you want to make use of the pod-identity facilities like managed identity.
