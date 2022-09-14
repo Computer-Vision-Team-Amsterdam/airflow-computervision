@@ -20,6 +20,7 @@ from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
 )
 from common import MessageOperator
 
+
 BASE_URL = f"https://3206eec333a04cc980799f75a593505a.objectstore.eu/intermediate/"
 
 airflow_secrets = json.loads(os.environ["AIRFLOW__SECRETS__BACKEND_KWARGS"])
@@ -149,6 +150,7 @@ with DAG(
             "retry_delay": timedelta(minutes=5),
         },
         description="A test DAG",
+        template_searchpath=["/"],
         schedule_interval=timedelta(days=1),
         start_date=datetime(2022, 8, 9),
         catchup=False,
@@ -176,7 +178,11 @@ with DAG(
         cmds=["python"],
         arguments=["test.py"],
         namespace="airflow-cvision2",
-        get_logs=True
+        get_logs=True,
+        is_delete_operator_pod=False,
+        dag=dag,
+        reattach_on_restart=True,
+        startup_timeout_seconds=3600
     )
 
     write_xcom = KubernetesPodOperator(
@@ -210,9 +216,9 @@ with DAG(
         provide_context=True)
     
     """
-    xcom = write_xcom >> pod_task_xcom_result
-    var_0 = test_connection_python
-    var = test
+var = (
+    test
+)
 
 
     # volume_mount = k8s_models.V1VolumeMount(
