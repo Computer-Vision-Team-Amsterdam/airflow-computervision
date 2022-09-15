@@ -12,7 +12,7 @@ from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
 IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/retrieve:latest'
 
 # Command that you want to run on container start
-DAG_ID: Final = "cvt-pipeline"
+DAG_ID: Final = "debugging"
 DATATEAM_OWNER: Final = "cvision2"
 DAG_LABEL: Final = {"team_name": DATATEAM_OWNER}
 AKS_NAMESPACE: Final = os.getenv("AIRFLOW__KUBERNETES__NAMESPACE")
