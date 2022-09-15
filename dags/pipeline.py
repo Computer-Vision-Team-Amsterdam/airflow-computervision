@@ -19,18 +19,13 @@ DAG_LABEL: Final = {"team_name": DATATEAM_OWNER}
 AKS_NAMESPACE: Final = os.getenv("AIRFLOW__KUBERNETES__NAMESPACE")
 AKS_NODE_POOL: Final = "cvision2work"
 
-# Command that you want to run on container start
-#COMMAND_TO_EXECUTE: list = ["python"]
-
-# Command arguments that will be used with command to execute on start
-#COMMAND_ARGS_DATA_INGEST: list = ["/opt/retrieve_images.py"]
-
 # List here all environment variables that also needs to be
 # used inside the K8PodOperator pod.
 GENERIC_VARS_NAMES: list = [
     "USER_ASSIGNED_MANAGED_IDENTITY",
     "AIRFLOW__SECRETS__BACKEND_KWARGS",
 ]
+
 
 def get_generic_vars() -> dict[str, str]:
     """Get generic environment variables all containers will need.
@@ -45,6 +40,7 @@ def get_generic_vars() -> dict[str, str]:
         variable: os.environ[variable] for variable in GENERIC_VARS_NAMES
     }
     return GENERIC_VARS_DICT
+
 
 with DAG(
     DAG_ID,
