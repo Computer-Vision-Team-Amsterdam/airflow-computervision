@@ -89,6 +89,7 @@ with DAG(
             # to prevent tasks becoming marked as failed when taking longer
             # and deleting them if staling
             execution_timeout=timedelta(hours=4),
+            do_xcom_push=True,
             # Select a specific nodepool to use. Could also be specified by nodeAffinity.
             node_selector={"nodetype": AKS_NODE_POOL},
             # List of Volume objects to pass to the Pod.
