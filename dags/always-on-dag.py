@@ -107,7 +107,7 @@ with DAG(
         image=BLUR_CONTAINER_IMAGE,
         env_vars=None,
         cmds=["python"],
-        arguments=["/opt/blur.py"],
+        arguments=["/app/blur.py"],
         labels=DAG_LABEL,
         name=DAG_ID,
         image_pull_policy="Always",
