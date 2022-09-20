@@ -10,3 +10,4 @@ WORKDIR /opt
 
 
 COPY sa_test.py /opt
+COPY retrieved_images/ /opt/retrieved_images
