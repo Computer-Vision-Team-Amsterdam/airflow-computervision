@@ -26,6 +26,9 @@ GENERIC_VARS_NAMES: list = [
     "AIRFLOW__SECRETS__BACKEND_KWARGS",
 ]
 
+date = '{{dag_run.conf["date"]}}'
+
+
 
 def get_generic_vars() -> dict[str, str]:
     """Get generic environment variables all containers will need.
@@ -65,7 +68,7 @@ with DAG(
             # add them here.
             env_vars=get_generic_vars(),
             cmds=["python"],
-            arguments=["/opt/retrieve_images.py", "--date", dag_run.conf["date"]],
+            arguments=["/opt/retrieve_images.py", "--date", date],
             labels=DAG_LABEL,
             name=DAG_ID,
             # Determines when to pull a fresh image, if 'IfNotPresent' will cause
