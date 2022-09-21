@@ -63,7 +63,7 @@ with DAG(
             image=IMAGE,
             env_vars=get_generic_vars(),
             cmds=["python"],
-            arguments=["/opt/inference.py"],
+            arguments=["/app/inference.py"],
             labels=DAG_LABEL,
             name=DAG_ID,
             image_pull_policy="Always",
