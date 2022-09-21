@@ -4,6 +4,8 @@ from typing import Final, Optional
 from airflow.utils.dates import days_ago
 
 from airflow import DAG
+
+from airflow.operators.bash import BashOperator
 from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
     KubernetesPodOperator,
 )
@@ -57,6 +59,7 @@ with DAG(
     catchup=False,
 ) as dag:
 
+    """
     detection = KubernetesPodOperator(
             task_id='detection',
             namespace=AKS_NAMESPACE,
@@ -81,8 +84,16 @@ with DAG(
             volumes=[],
             volume_mounts=[],
         )
+    """
 
+    # You can also access the DagRun object in templates
+    bash_task = BashOperator(
+        task_id="bash_task",
+        bash_command='echo "Here is the message: '
+                     '{{ dag_run.conf["date"] if dag_run else "" }}" ',
+        dag=dag,
+    )
 # FLOW
 var = (
-        detection
+        bash_task
 )
