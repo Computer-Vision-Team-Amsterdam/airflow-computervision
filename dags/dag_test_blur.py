@@ -14,7 +14,7 @@ from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
 IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/blur:latest'
 
 # Command that you want to run on container start
-DAG_ID: Final = "test_detection"
+DAG_ID: Final = "test_blur"
 DATATEAM_OWNER: Final = "cvision2"
 DAG_LABEL: Final = {"team_name": DATATEAM_OWNER}
 AKS_NAMESPACE: Final = os.getenv("AIRFLOW__KUBERNETES__NAMESPACE")
