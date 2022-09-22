@@ -36,7 +36,7 @@ GENERIC_VARS_NAMES: list = [
     "AIRFLOW__SECRETS__BACKEND_KWARGS",
 ]
 
-date = '{{dag_run.conf["date"]}}'
+date = 'test-date'
 
 print(f"directory content: {os.listdir(os.getcwd())}")
 
@@ -84,7 +84,8 @@ def split_pano_id(pano_id: str) -> Tuple[str, str]:
 
 
 def download_panorama_from_cloudvps(
-        date: datetime, panorama_id: str, output_dir: Path = Path("./retrieved_images")
+        date: datetime, panorama_id: str,
+        output_dir: Path = Path(os.getcwd(), "dags", "repo", "dags", "retrieved_images")
 ) -> None:
     """
     Downloads panorama from cloudvps to local folder.
@@ -143,7 +144,6 @@ def retrieve_function():
         download_panorama_from_cloudvps(pano_date, pano_id)
 
 
-
 with DAG(
     DAG_ID,
     description="Dag to check individual containers before adding them into the pipeline",
@@ -159,9 +159,12 @@ with DAG(
     template_searchpath=["/"],
     catchup=False,
 ) as dag:
-    """
-    retrieve = PythonOperator(task_id='retrieve', python_callable=retrieve_function, dag=DAG_ID)
-    """
+
+    retrieve = PythonOperator(task_id='retrieve',
+                              python_callable=retrieve_function,
+                              provide_context=True,
+                              dag=dag)
+
     upload = PythonOperator(task_id='upload',
                             python_callable=upload_to_storage_account,
                             provide_context=True,
@@ -169,5 +172,5 @@ with DAG(
 
 # FLOW
 var = (
-        upload
+        retrieve >> upload
 )
