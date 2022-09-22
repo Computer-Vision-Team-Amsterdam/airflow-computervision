@@ -91,7 +91,7 @@ def download_panorama_from_cloudvps(
     Downloads panorama from cloudvps to local folder.
     """
 
-    if Path(f"./{output_dir}/{panorama_id}.jpg").exists():
+    if Path(f"{output_dir}/{panorama_id}.jpg").exists():
         print(f"Panorama {panorama_id} is already downloaded.")
         return
     id_name, img_name = split_pano_id(panorama_id)
@@ -107,7 +107,7 @@ def download_panorama_from_cloudvps(
         )
         if response.status_code == 404:
             raise FileNotFoundError(f"No resource found at {url}")
-        filename = f"./{output_dir}/{panorama_id}.jpg"
+        filename = f"{output_dir}/{panorama_id}.jpg"
         with open(filename, "wb") as out_file:
             shutil.copyfileobj(response.raw, out_file)
         del response
