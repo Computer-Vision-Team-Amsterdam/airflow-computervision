@@ -163,7 +163,7 @@ with DAG(
     upload = PythonOperator(task_id='upload',
                             python_callable=upload_to_storage_account,
                             provide_context=True,
-                            dag=DAG_ID)
+                            dag=dag)
 
 # FLOW
 var = (
