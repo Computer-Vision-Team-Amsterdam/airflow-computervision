@@ -154,10 +154,12 @@ with DAG(
     template_searchpath=["/"],
     catchup=False,
 ) as dag:
-
+    """
     retrieve = PythonOperator(task_id='retrieve', python_callable=retrieve_function, dag=DAG_ID)
+    """
+    upload = PythonOperator(task_id='upload', python_callable=upload_to_storage_account(date), dag=DAG_ID)
 
 # FLOW
 var = (
-        retrieve
+        upload
 )
