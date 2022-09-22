@@ -116,7 +116,7 @@ def download_panorama_from_cloudvps(
         print(f"Failed for panorama {panorama_id}:\n{e}")
 
 
-def upload_to_storage_account(date: str) -> None:
+def upload_to_storage_account() -> None:
     pass
 
 """    retrieved_images_folder_path = Path(os.getcwd(), "retrieved_images")
@@ -160,7 +160,7 @@ with DAG(
     """
     retrieve = PythonOperator(task_id='retrieve', python_callable=retrieve_function, dag=DAG_ID)
     """
-    upload = PythonOperator(task_id='upload', python_callable=upload_to_storage_account(date), dag=DAG_ID)
+    upload = PythonOperator(task_id='upload', python_callable=upload_to_storage_account, dag=DAG_ID)
 
 # FLOW
 var = (
