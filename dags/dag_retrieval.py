@@ -117,17 +117,16 @@ def download_panorama_from_cloudvps(
 
 
 def upload_to_storage_account() -> None:
-    print(f"directory content: {os.listdir(os.getcwd())}")
+    print(f'directory content: {os.listdir(Path(os.getcwd(), "dags"))}')
 
-
-"""    retrieved_images_folder_path = Path(os.getcwd(), "retrieved_images")
+    retrieved_images_folder_path = Path(os.getcwd(), "dags", "retrieved_images")
     for file in os.listdir(retrieved_images_folder_path):
         blob_client = blob_service_client.get_blob_client(
             container="unblurred", blob=f"{date}/{file}")
 
         # Upload the created file
         with open(os.path.join(retrieved_images_folder_path, file), "rb") as data:
-            blob_client.upload_blob(data)"""
+            blob_client.upload_blob(data)
 
 
 def retrieve_function():
