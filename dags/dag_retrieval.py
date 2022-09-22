@@ -140,7 +140,7 @@ def retrieve_function():
         "TMX7315120208-000020_pano_0000_000002",
     ]
 
-    print(f'retrieve: directory content in repo, dags: {os.listdir(Path(os.getcwd(), "dags", "repo", "dags"))}')
+    print(f'retrieve: directory content in repo, dags, retrieved_imgs: {os.listdir(Path(os.getcwd(), "dags", "repo", "dags", "retrieved_images"))}')
 
     for pano_date, pano_id in zip(pano_dates, pano_ids):
         download_panorama_from_cloudvps(pano_date, pano_id)
