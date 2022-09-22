@@ -117,7 +117,9 @@ def download_panorama_from_cloudvps(
 
 
 def upload_to_storage_account() -> None:
-    print(f'directory content: {os.listdir(Path(os.getcwd(), "dags"))}')
+    print(f'directory content in dags: {os.listdir(Path(os.getcwd(), "dags"))}')
+    print(f'directory content in repo: {os.listdir(Path(os.getcwd(), "dags", "repo"))}')
+    print(f'directory content in 25ed..: {os.listdir(Path(os.getcwd(), "dags", "25ed2ff3cea086b7b72795f15c865dc8092ac0ec"))}')
 
     retrieved_images_folder_path = Path(os.getcwd(), "dags", "retrieved_images")
     for file in os.listdir(retrieved_images_folder_path):
