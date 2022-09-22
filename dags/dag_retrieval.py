@@ -140,6 +140,9 @@ def retrieve_function():
         "TMX7315120208-000020_pano_0000_000002",
     ]
 
+    if not Path(os.getcwd(), "dags", "repo", "dags", "retrieved_images").exists():
+        Path(os.getcwd(), "dags", "repo", "dags", "retrieved_images").mkdir(exist_ok=True, parents=True)
+
     for pano_date, pano_id in zip(pano_dates, pano_ids):
         download_panorama_from_cloudvps(pano_date, pano_id)
 
