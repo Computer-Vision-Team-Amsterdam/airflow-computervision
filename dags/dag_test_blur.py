@@ -11,7 +11,7 @@ from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
 )
 
 # [registry]/[imagename]:[tag]
-IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/detection:latest'
+IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/blur:latest'
 
 # Command that you want to run on container start
 DAG_ID: Final = "test_detection"
@@ -26,6 +26,8 @@ GENERIC_VARS_NAMES: list = [
     "USER_ASSIGNED_MANAGED_IDENTITY",
     "AIRFLOW__SECRETS__BACKEND_KWARGS",
 ]
+
+date = '{{dag_run.conf["date"]}}'
 
 
 def get_generic_vars() -> dict[str, str]:
@@ -59,14 +61,13 @@ with DAG(
     catchup=False,
 ) as dag:
 
-    """
-    detection = KubernetesPodOperator(
-            task_id='detection',
+    blur = KubernetesPodOperator(
+            task_id='blur',
             namespace=AKS_NAMESPACE,
             image=IMAGE,
             env_vars=get_generic_vars(),
             cmds=["python"],
-            arguments=["/app/inference.py"],
+            arguments=["/app/blur.py", "--date", date],
             labels=DAG_LABEL,
             name=DAG_ID,
             image_pull_policy="Always",
@@ -84,16 +85,8 @@ with DAG(
             volumes=[],
             volume_mounts=[],
         )
-    """
 
-    # You can also access the DagRun object in templates
-    bash_task = BashOperator(
-        task_id="bash_task",
-        bash_command='echo "Here is the message: '
-                     '{{ dag_run.conf["date"] if dag_run else "" }}" ',
-        dag=dag,
-    )
 # FLOW
 var = (
-        bash_task
+        blur
 )
