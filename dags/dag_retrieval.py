@@ -120,7 +120,7 @@ def upload_to_storage_account() -> None:
     print(f'directory content in dags: {os.listdir(Path(os.getcwd(), "dags"))}')
     print(f'directory content in repo, dags: {os.listdir(Path(os.getcwd(), "dags", "repo", "dags"))}')
 
-    retrieved_images_folder_path = Path(os.getcwd(), "dags", "retrieved_images")
+    retrieved_images_folder_path = Path(os.getcwd(), "dags", "repo", "dags", "retrieved_images")
     for file in os.listdir(retrieved_images_folder_path):
         blob_client = blob_service_client.get_blob_client(
             container="unblurred", blob=f"{date}/{file}")
