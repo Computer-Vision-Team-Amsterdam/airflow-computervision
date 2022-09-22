@@ -117,7 +117,8 @@ def download_panorama_from_cloudvps(
 
 
 def upload_to_storage_account() -> None:
-    pass
+    print(f"directory content: {os.listdir(os.getcwd())}")
+
 
 """    retrieved_images_folder_path = Path(os.getcwd(), "retrieved_images")
     for file in os.listdir(retrieved_images_folder_path):
