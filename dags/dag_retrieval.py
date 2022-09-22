@@ -160,7 +160,10 @@ with DAG(
     """
     retrieve = PythonOperator(task_id='retrieve', python_callable=retrieve_function, dag=DAG_ID)
     """
-    upload = PythonOperator(task_id='upload', python_callable=upload_to_storage_account, dag=DAG_ID)
+    upload = PythonOperator(task_id='upload',
+                            python_callable=upload_to_storage_account,
+                            provide_context=True,
+                            dag=DAG_ID)
 
 # FLOW
 var = (
