@@ -12,7 +12,6 @@ import requests
 from requests.auth import HTTPBasicAuth
 from azure.identity import ManagedIdentityCredential
 from azure.keyvault.secrets import SecretClient
-from azure.storage.blob import BlobServiceClient
 
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
@@ -27,8 +26,6 @@ AKS_NODE_POOL: Final = "cvision2work"
 
 client_id = os.getenv("USER_ASSIGNED_MANAGED_IDENTITY")
 credential = ManagedIdentityCredential(client_id=client_id)
-blob_service_client = BlobServiceClient(account_url="https://cvtdataweuogidgmnhwma3zq.blob.core.windows.net",
-                                        credential=credential)
 
 airflow_secrets = json.loads(os.environ["AIRFLOW__SECRETS__BACKEND_KWARGS"])
 KVUri = airflow_secrets["vault_url"]
