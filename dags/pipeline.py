@@ -104,7 +104,7 @@ with DAG(
         task_id='blur_images',
         namespace=AKS_NAMESPACE,
         image=BLUR_CONTAINER_IMAGE,
-        env_vars=None,
+        env_vars=get_generic_vars(),
         cmds=["python"],
         arguments=["/app/blur.py",  "--date", date],
         labels=DAG_LABEL,
