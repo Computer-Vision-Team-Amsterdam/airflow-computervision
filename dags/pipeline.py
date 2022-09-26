@@ -99,7 +99,7 @@ with DAG(
             # List of VolumeMount objects to pass to the Pod.
             volume_mounts=[],
         )
-    """
+
     blur_images = KubernetesPodOperator(
         task_id='blur_images',
         namespace=AKS_NAMESPACE,
@@ -123,12 +123,11 @@ with DAG(
         volumes=[],
         volume_mounts=[],
     )
-    """
     
 
 # FLOW
 var = (
-        retrieve_images
+        retrieve_images >> blur_images
 )
 
 
