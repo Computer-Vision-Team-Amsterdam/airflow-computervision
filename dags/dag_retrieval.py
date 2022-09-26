@@ -117,6 +117,7 @@ def download_panorama_from_cloudvps(
         print(f"Failed for panorama {panorama_id}:\n{e}")
 
 
+
 def upload_to_storage_account() -> None:
     print(f'directory content in dags: {os.listdir(Path(os.getcwd(), "dags"))}')
     print(f'directory content in repo, dags: {os.listdir(Path(os.getcwd(), "dags", "repo", "dags"))}')
@@ -146,6 +147,15 @@ def retrieve_function():
         download_panorama_from_cloudvps(pano_date, pano_id)
 
 
+def check_connection():
+    url = "https://3206eec333a04cc980799f75a593505a.objectstore.eu/intermediate/2016/03/17/TMX7315120208-000020/pano_0000_000000.jpg"
+    response = requests.get(url, stream=True, auth=HTTPBasicAuth(USERNAME, PASSWORD))
+    if response.status_code != 200:
+        print(f"Status code is {response.status_code}")
+    else:
+        print("Successful.")
+
+
 with DAG(
     DAG_ID,
     description="Dag to check individual containers before adding them into the pipeline",
@@ -162,17 +172,12 @@ with DAG(
     catchup=False,
 ) as dag:
 
-    retrieve = PythonOperator(task_id='retrieve',
-                              python_callable=retrieve_function,
+    cloudvps_connection = PythonOperator(task_id='retrieve',
+                              python_callable=check_connection,
                               provide_context=True,
                               dag=dag)
 
-    upload = PythonOperator(task_id='upload',
-                            python_callable=upload_to_storage_account,
-                            provide_context=True,
-                            dag=dag)
-
 # FLOW
 var = (
-        retrieve >> upload
+        cloudvps_connection
 )

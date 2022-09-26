@@ -36,9 +36,10 @@ socket.setdefaulttimeout(100)
 
 
 def check_sia_connection():
-    url = "https://acc.api.data.amsterdam.nl/signals/v1/private/users"
+    url = "https://acc.api.data.amsterdam.nl/signals/v1/private/signals"
     response = requests.get(url, stream=True, auth=HTTPBasicAuth("sia-cvt", sia_password))
     print(f"Respose status code: {response.status_code}.")
+
 
 with DAG(
     DAG_ID,
