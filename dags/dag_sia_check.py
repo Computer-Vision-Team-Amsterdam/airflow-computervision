@@ -39,7 +39,7 @@ def check_sia_connection():
     data = {
         'grant_type': 'client_credentials',
         'client_id': 'sia-cvt',
-        'client_secret': f'{sia_password}',
+        'client_secret': f'{sia_password.value}',
     }
 
     print(data)
