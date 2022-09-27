@@ -128,10 +128,6 @@ with DAG(
         volume_mounts=[],
     )
 
-    store_metadata = PythonOperator(task_id='store_metadata',
-                                         python_callable=metadata_processing,
-                                         provide_context=True,
-                                         dag=dag)
     store_images_metadata = KubernetesPodOperator(
         task_id='store_images_metadata',
         namespace=AKS_NAMESPACE,
@@ -159,7 +155,7 @@ with DAG(
 
 # FLOW
 var = (
-        retrieve_images >> [blur_images, store_metadata]
+        retrieve_images >> [blur_images, store_images_metadata]
 )
 
 
