@@ -31,17 +31,27 @@ airflow_secrets = json.loads(os.environ["AIRFLOW__SECRETS__BACKEND_KWARGS"])
 KVUri = airflow_secrets["vault_url"]
 
 client = SecretClient(vault_url=KVUri, credential=credential)
-# sia_token = client.get_secret(name="sia-token")
+sia_password = client.get_secret(name="sia-password")
 socket.setdefaulttimeout(100)
 
-sia_token = "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJXNTRsQzhsei1Yek9tVDhOMDFCTXdXLXlYbTFodGpHRlBRR0FUQm1SNU9BIn0.eyJleHAiOjE2NjQyODc2MDAsImlhdCI6MTY2NDI4NjcwMCwianRpIjoiODgxZDI3ODktYzhkNS00OTRiLThhYWUtM2Y5MzZiOGQwYTFlIiwiaXNzIjoiaHR0cHM6Ly9pYW0uYW1zdGVyZGFtLm5sL2F1dGgvcmVhbG1zL2RhdGFwdW50LWFkLWFjYyIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiI3YTY4YTdlYi1hOWM3LTRlNTctYmExNS01OWNkMDUxYWRjMDQiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJzaWEtY3Z0IiwiYWNyIjoiMSIsInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJkZWZhdWx0LXJvbGVzLWRhdGFwdW50LWFkLWFjYyIsIm9mZmxpbmVfYWNjZXNzIiwidW1hX2F1dGhvcml6YXRpb24iXX0sInJlc291cmNlX2FjY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6InByb2ZpbGUgZW1haWwiLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImNsaWVudElkIjoic2lhLWN2dCIsImNsaWVudEhvc3QiOiIxMC4yNDAuMjAyLjE4NSIsInByZWZlcnJlZF91c2VybmFtZSI6InNlcnZpY2UtYWNjb3VudC1zaWEtY3Z0IiwiY2xpZW50QWRkcmVzcyI6IjEwLjI0MC4yMDIuMTg1IiwiZW1haWwiOiJjdnRAYW1zdGVyZGFtLm5sIn0.NXaTYUrEy2wr7vOkj9qgiYhou9C-aI_La7hVYjPMbjbnGNBY_es0IR8-2smATpwYAausx6eS8ZL8sjprB_eSH6lFr4RK6CQF4AOUwMBvapJVZzj84O9SPjWj3X6XkJCro-vLxjGNvpTvAtL-tliwjoyADUI8fkswzqATO82OXEiMu57upv1TjaWzx0neLAu-uLEUpBNxPm2EaWO1zthC83ZFUDNHzdtCvxfWdkbjwdlBHdElm-Rg0j0MgKUBsIZjeQWd4_-KTd8KbeRWQXUI5dymvcLhU0AiJJQBnHN7-g7Rucjtv561W09My1nBfgVoPyVR8_YuPsc3qTupm-dEag"
 
 def check_sia_connection():
-    url = "https://acc.api.data.amsterdam.nl/signals/v1/private/signals"
-    headers = {'Authorization': "Bearer {}".format(sia_token)}
-    response = requests.get(url, headers=headers)
-    print(f"Respose status code: {response.status_code}.")
+    data = {
+        'grant_type': 'client_credentials',
+        'client_id': 'sia-cvt',
+        'client_secret': sia_password,
+    }
+    tokenURL = 'https://iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/token'
+    response = requests.post(tokenURL, data=data)
 
+    if response.status_code == 200:
+        token = response["token"]
+        url = "https://acc.api.data.amsterdam.nl/signals/v1/private/signals"
+        headers = {'Authorization': "Bearer {}".format(token)}
+        response = requests.get(url, headers=headers)
+        print(f"Respose status SIA private endpoint: {response.status_code}.")
+    else:
+        print(f"Response status code for token {response.status_code}")
 
 with DAG(
     DAG_ID,
