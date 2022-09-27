@@ -45,7 +45,7 @@ def check_sia_connection():
     response = requests.post(tokenURL, data=data)
 
     if response.status_code == 200:
-        token = response["token"]
+        token = response.json()["access_token"]
         url = "https://acc.api.data.amsterdam.nl/signals/v1/private/signals"
         headers = {'Authorization': "Bearer {}".format(token)}
         response = requests.get(url, headers=headers)
