@@ -130,3 +130,6 @@ def metadata_processing():
     panorama_ids = list("TMX7315120208-000020_pano_0000_000000")
     metadata = save_metadata(panorama_ids)
     upload_metadata(metadata, date=opt.date)
+
+
+metadata_processing()

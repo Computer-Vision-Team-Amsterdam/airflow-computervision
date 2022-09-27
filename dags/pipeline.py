@@ -14,6 +14,7 @@ from metadata_to_postgresql import metadata_processing
 # [registry]/[imagename]:[tag]
 RETRIEVAL_CONTAINER_IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/retrieve:latest'
 BLUR_CONTAINER_IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/blur:latest'
+METADATA_CONTAINER_IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/store_metadata:latest'
 
 # Command that you want to run on container start
 DAG_ID: Final = "cvt-pipeline"
@@ -131,6 +132,29 @@ with DAG(
                                          python_callable=metadata_processing,
                                          provide_context=True,
                                          dag=dag)
+    store_images_metadata = KubernetesPodOperator(
+        task_id='store_images_metadata',
+        namespace=AKS_NAMESPACE,
+        image=METADATA_CONTAINER_IMAGE,
+        env_vars=get_generic_vars(),
+        cmds=["python"],
+        arguments=["/opt/metadata_to_postgresql.py", "--date", date],
+        labels=DAG_LABEL,
+        name=DAG_ID,
+        image_pull_policy="Always",
+        get_logs=True,
+        in_cluster=True,
+        is_delete_operator_pod=False,
+        log_events_on_failure=True,
+        hostnetwork=True,
+        reattach_on_restart=True,
+        dag=dag,
+        startup_timeout_seconds=3600,
+        execution_timeout=timedelta(hours=4),
+        node_selector={"nodetype": AKS_NODE_POOL},
+        volumes=[],
+        volume_mounts=[],
+    )
     
 
 # FLOW
