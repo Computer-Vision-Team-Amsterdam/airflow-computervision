@@ -39,8 +39,10 @@ def check_sia_connection():
     data = {
         'grant_type': 'client_credentials',
         'client_id': 'sia-cvt',
-        'client_secret': f"{sia_password}",
+        'client_secret': f'{sia_password}',
     }
+
+    print(data)
     tokenURL = 'https://iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/token'
     response = requests.post(tokenURL, data=data)
 
