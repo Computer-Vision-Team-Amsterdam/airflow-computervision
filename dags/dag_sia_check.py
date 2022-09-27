@@ -31,7 +31,7 @@ airflow_secrets = json.loads(os.environ["AIRFLOW__SECRETS__BACKEND_KWARGS"])
 KVUri = airflow_secrets["vault_url"]
 
 client = SecretClient(vault_url=KVUri, credential=credential)
-sia_password = client.get_secret(name="sia-password")
+sia_password = client.get_secret(name="sia-password-acc")
 socket.setdefaulttimeout(100)
 
 
