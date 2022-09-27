@@ -4,9 +4,12 @@ from typing import Final, Optional
 from airflow.utils.dates import days_ago
 
 from airflow import DAG
+from airflow.operators.python_operator import PythonOperator
 from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
     KubernetesPodOperator,
 )
+
+from metadata_to_postgresql import metadata_processing
 
 # [registry]/[imagename]:[tag]
 RETRIEVAL_CONTAINER_IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/retrieve:latest'
@@ -123,11 +126,16 @@ with DAG(
         volumes=[],
         volume_mounts=[],
     )
+
+    store_metadata = PythonOperator(task_id='store_metadata',
+                                         python_callable=metadata_processing,
+                                         provide_context=True,
+                                         dag=dag)
     
 
 # FLOW
 var = (
-        retrieve_images >> blur_images
+        retrieve_images >> [blur_images, store_metadata]
 )
 
 
