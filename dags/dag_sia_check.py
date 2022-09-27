@@ -31,13 +31,14 @@ airflow_secrets = json.loads(os.environ["AIRFLOW__SECRETS__BACKEND_KWARGS"])
 KVUri = airflow_secrets["vault_url"]
 
 client = SecretClient(vault_url=KVUri, credential=credential)
-sia_password = client.get_secret(name="sia-password-acc")
+sia_token = client.get_secret(name="sia-token")
 socket.setdefaulttimeout(100)
 
 
 def check_sia_connection():
     url = "https://acc.api.data.amsterdam.nl/signals/v1/private/signals"
-    response = requests.get(url, stream=True, auth=HTTPBasicAuth("sia-cvt", sia_password))
+    headers = {'Authorization': "Bearer {}".format(sia_token)}
+    response = requests.get(url, headers=headers)
     print(f"Respose status code: {response.status_code}.")
 
 
