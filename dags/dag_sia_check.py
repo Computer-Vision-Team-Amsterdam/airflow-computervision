@@ -12,6 +12,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 from azure.identity import ManagedIdentityCredential
 from azure.keyvault.secrets import SecretClient
+from azure.storage.blob import BlobServiceClient
 
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
@@ -26,6 +27,8 @@ AKS_NODE_POOL: Final = "cvision2work"
 
 client_id = os.getenv("USER_ASSIGNED_MANAGED_IDENTITY")
 credential = ManagedIdentityCredential(client_id=client_id)
+blob_service_client = BlobServiceClient(account_url="https://cvtdataweuogidgmnhwma3zq.blob.core.windows.net",
+                                        credential=credential)
 
 airflow_secrets = json.loads(os.environ["AIRFLOW__SECRETS__BACKEND_KWARGS"])
 KVUri = airflow_secrets["vault_url"]
@@ -36,24 +39,9 @@ socket.setdefaulttimeout(100)
 
 
 def check_sia_connection():
-    data = {
-        'grant_type': 'client_credentials',
-        'client_id': 'sia-cvt',
-        'client_secret': f'{sia_password.value}',
-    }
-
-    print(data)
-    tokenURL = 'https://iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/token'
-    response = requests.post(tokenURL, data=data)
-
-    if response.status_code == 200:
-        token = response.json()["access_token"]
-        url = "https://acc.api.data.amsterdam.nl/signals/v1/private/signals"
-        headers = {'Authorization': "Bearer {}".format(token)}
-        response = requests.get(url, headers=headers)
-        print(f"Respose status SIA private endpoint: {response.status_code}.")
-    else:
-        print(f"Response status code for token {response.status_code}")
+    url = "https://acc.api.data.amsterdam.nl/signals/v1/private/users"
+    response = requests.get(url, stream=True, auth=HTTPBasicAuth("sia-cvt", sia_password))
+    print(f"Respose status code: {response.status_code}.")
 
 with DAG(
     DAG_ID,
