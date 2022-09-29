@@ -26,10 +26,10 @@ AKS_NODE_POOL: Final = "cvision2work"
 GENERIC_VARS_NAMES: list = [
     "USER_ASSIGNED_MANAGED_IDENTITY",
     "AIRFLOW__SECRETS__BACKEND_KWARGS",
+    "AIRFLOW_CONN_POSTGRES_DEFAULT"
 ]
 
 date = '{{dag_run.conf["date"]}}'
-
 
 
 def get_generic_vars() -> dict[str, str]:
@@ -48,20 +48,21 @@ def get_generic_vars() -> dict[str, str]:
 
 
 with DAG(
-    DAG_ID,
-    description="test-dag",
-    default_args={
-        'depends_on_past': False,
-        'email': ['airflow@example.com'],
-        'email_on_failure': False,
-        'email_on_retry': False,
-        'retries': 1,
-        'retry_delay': timedelta(minutes=5),
-        'start_date': days_ago(1),
-    },
-    template_searchpath=["/"],
-    catchup=False,
+        DAG_ID,
+        description="test-dag",
+        default_args={
+            'depends_on_past': False,
+            'email': ['airflow@example.com'],
+            'email_on_failure': False,
+            'email_on_retry': False,
+            'retries': 1,
+            'retry_delay': timedelta(minutes=5),
+            'start_date': days_ago(1),
+        },
+        template_searchpath=["/"],
+        catchup=False,
 ) as dag:
+    """
     retrieve_images = KubernetesPodOperator(
             task_id='retrieve_images',
             namespace=AKS_NAMESPACE,
@@ -125,6 +126,7 @@ with DAG(
         volumes=[],
         volume_mounts=[],
     )
+    """
 
     store_images_metadata = KubernetesPodOperator(
         task_id='store_images_metadata',
@@ -149,13 +151,9 @@ with DAG(
         volumes=[],
         volume_mounts=[],
     )
-    
 
 # FLOW
 var = (
-        retrieve_images >> [blur_images, store_images_metadata]
+    # retrieve_images >> [blur_images, store_images_metadata]
+    store_images_metadata
 )
-
-
-
-
