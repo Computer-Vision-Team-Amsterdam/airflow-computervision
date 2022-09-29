@@ -13,6 +13,8 @@ from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
 RETRIEVAL_CONTAINER_IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/retrieve:latest'
 BLUR_CONTAINER_IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/blur:latest'
 METADATA_CONTAINER_IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/store_metadata:latest'
+DETECT_CONTAINER_IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/detection:latest'
+
 
 # Command that you want to run on container start
 DAG_ID: Final = "cvt-pipeline"
@@ -126,7 +128,6 @@ with DAG(
         volumes=[],
         volume_mounts=[],
     )
-    """
 
     store_images_metadata = KubernetesPodOperator(
         task_id='store_images_metadata',
@@ -151,9 +152,38 @@ with DAG(
         volumes=[],
         volume_mounts=[],
     )
+    """
+    detect_containers = KubernetesPodOperator(
+        task_id='detect_containers',
+        namespace=AKS_NAMESPACE,
+        image=DETECT_CONTAINER_IMAGE,
+        env_vars=get_generic_vars(),
+        cmds=["python"],
+        arguments=["/app/inference.py",
+                   "--subset", date,
+                   "--device", "cpu",
+                   "--data_folder", "blurred",
+                   "--weights", "model_final.pth",
+                   "--output_path", "outputs"],
+        labels=DAG_LABEL,
+        name=DAG_ID,
+        image_pull_policy="Always",
+        get_logs=True,
+        in_cluster=True,
+        is_delete_operator_pod=False,
+        log_events_on_failure=True,
+        hostnetwork=True,
+        reattach_on_restart=True,
+        dag=dag,
+        startup_timeout_seconds=3600,
+        execution_timeout=timedelta(hours=4),
+        node_selector={"nodetype": AKS_NODE_POOL},
+        volumes=[],
+        volume_mounts=[],
+    )
 
 # FLOW
 var = (
     # retrieve_images >> [blur_images, store_images_metadata]
-    store_images_metadata
+    detect_containers
 )
