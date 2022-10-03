@@ -83,7 +83,7 @@ with DAG(
         template_searchpath=["/"],
         catchup=False,
 ) as dag:
-
+    """
     retrieve_images = KubernetesPodOperator(
             task_id='retrieve_images',
             namespace=AKS_NAMESPACE,
@@ -206,9 +206,16 @@ with DAG(
         volumes=[],
         volume_mounts=[],
     )
+    """
+    remove_unblurred_images = PythonOperator(
+        task_id='remove_unblurred_images',
+        python_callable=remove_unblurred_images,
+        provide_context=True,
+        dag=dag)
 
 # FLOW
 
-    flow = retrieve_images >> [blur_images, store_images_metadata] >> remove_unblurred_images >> detect_containers
+    #flow = retrieve_images >> [blur_images, store_images_metadata] >> remove_unblurred_images >> detect_containers
+    flow = remove_unblurred_images
 
 
