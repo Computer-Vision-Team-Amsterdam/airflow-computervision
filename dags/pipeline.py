@@ -9,12 +9,17 @@ from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
     KubernetesPodOperator,
 )
 
+from azure.storage.blob import BlobServiceClient
+from azure.identity import ManagedIdentityCredential
+
+
 # [registry]/[imagename]:[tag]
 RETRIEVAL_CONTAINER_IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/retrieve:latest'
 BLUR_CONTAINER_IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/blur:latest'
 METADATA_CONTAINER_IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/store_metadata:latest'
 DETECT_CONTAINER_IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/detection:latest'
 
+date = '{{dag_run.conf["date"]}}'  # set in config when triggering DAG
 
 # Command that you want to run on container start
 DAG_ID: Final = "cvt-pipeline"
@@ -31,7 +36,11 @@ GENERIC_VARS_NAMES: list = [
     "AIRFLOW_CONN_POSTGRES_DEFAULT"
 ]
 
-date = '{{dag_run.conf["date"]}}'
+
+client_id = os.getenv("USER_ASSIGNED_MANAGED_IDENTITY")
+credential = ManagedIdentityCredential(client_id=client_id)
+blob_service_client = BlobServiceClient(account_url="https://cvtdataweuogidgmnhwma3zq.blob.core.windows.net",
+                                       credential=credential)
 
 
 def get_generic_vars() -> dict[str, str]:
@@ -47,6 +56,16 @@ def get_generic_vars() -> dict[str, str]:
         variable: os.environ[variable] for variable in GENERIC_VARS_NAMES
     }
     return GENERIC_VARS_DICT
+
+
+def remove_unblurred_images():
+    """
+    Remove unblurred images from storage account after we:
+    - blurred them
+    - stored the metadata in the postgres database
+    """
+
+    blob_service_client.block_blob_service.delete_blob("unblurred", f"{date}")
 
 
 with DAG(
@@ -153,6 +172,12 @@ with DAG(
         volume_mounts=[],
     )
 
+    remove_unblurred_images = PythonOperator(
+        task_id='remove_unblurred_images',
+        python_callable=remove_unblurred_images,
+        provide_context=True,
+        dag=dag)
+
     detect_containers = KubernetesPodOperator(
         task_id='detect_containers',
         namespace=AKS_NAMESPACE,
@@ -184,6 +209,6 @@ with DAG(
 
 # FLOW
 
-    step_0 = retrieve_images >> [blur_images, store_images_metadata]
-    step_1 = blur_images >> detect_containers
+    flow = retrieve_images >> [blur_images, store_images_metadata] >> remove_unblurred_images >> detect_containers
+
 
