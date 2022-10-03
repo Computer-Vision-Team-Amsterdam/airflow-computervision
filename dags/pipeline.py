@@ -64,7 +64,7 @@ with DAG(
         template_searchpath=["/"],
         catchup=False,
 ) as dag:
-    """
+
     retrieve_images = KubernetesPodOperator(
             task_id='retrieve_images',
             namespace=AKS_NAMESPACE,
@@ -152,7 +152,7 @@ with DAG(
         volumes=[],
         volume_mounts=[],
     )
-    """
+
     detect_containers = KubernetesPodOperator(
         task_id='detect_containers',
         namespace=AKS_NAMESPACE,
@@ -184,6 +184,6 @@ with DAG(
 
 # FLOW
 var = (
-    # retrieve_images >> [blur_images, store_images_metadata]
-    detect_containers
+    retrieve_images >> [blur_images, store_images_metadata] >> blur_images
+
 )
