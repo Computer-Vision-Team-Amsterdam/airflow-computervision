@@ -183,7 +183,7 @@ with DAG(
     )
 
 # FLOW
-var = (
-    retrieve_images >> [blur_images, store_images_metadata] >> blur_images
 
-)
+    step_0 = retrieve_images >> [blur_images, store_images_metadata]
+    step_1 = blur_images >> detect_containers
+
