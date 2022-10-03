@@ -65,7 +65,6 @@ def remove_unblurred_images():
     - stored the metadata in the postgres database
     """
 
-    blob_service_client.delete_blob("unblurred", f"{date}")
     # Get the blob client to be deleted
     todelete_blob_client = blob_service_client.get_blob_client(container="unblurred", blob=f"{date}")
 
