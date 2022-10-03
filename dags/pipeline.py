@@ -65,7 +65,21 @@ def remove_unblurred_images():
     - stored the metadata in the postgres database
     """
 
-    blob_service_client.block_blob_service.delete_blob("unblurred", f"{date}")
+    blob_service_client.delete_blob("unblurred", f"{date}")
+    # Get the blob client to be deleted
+    todelete_blob_client = blob_service_client.get_blob_client(container="unblurred", blob=f"{date}")
+
+    try:
+        # Check if the blob exists
+        if todelete_blob_client.exists():
+            # Delete blob
+            todelete_blob_client.delete_blob()
+            print("Blob deleted successfully!")
+        else:
+            print("Blob does not exist!")
+
+    except Exception as e:
+        print("Failed to delete blob. Error:" + str(e))
 
 
 with DAG(
