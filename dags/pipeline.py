@@ -9,7 +9,7 @@ from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
     KubernetesPodOperator,
 )
 
-from azure.storage.blob import BlobServiceClient
+from azure.storage.blob import BlobServiceClient, BlockBlobService
 from azure.identity import ManagedIdentityCredential
 
 
@@ -60,25 +60,22 @@ def get_generic_vars() -> dict[str, str]:
 
 def remove_unblurred_images():
     """
+    TODO replace looping through images, find faster implementation
     Remove unblurred images from storage account after we:
     - blurred them
     - stored the metadata in the postgres database
     """
 
-    # Get the blob client to be deleted
-    todelete_blob_client = blob_service_client.get_blob_client(container="unblurred", blob=f"{date}")
-
-    try:
-        # Check if the blob exists
-        if todelete_blob_client.exists():
-            # Delete blob
+    container_client = blob_service_client.get_container_client(container="unblurred")
+    blob_list = container_client.list_blobs()
+    for blob in blob_list:
+        print(f"blob is {blob}")
+        path = blob.name
+        print(f"path is {path}")
+        if path.split("/")[0] == date:  # only delete images from one date
+            todelete_blob_client = blob_service_client.get_blob_client(container="unblurred", blob=path)
             todelete_blob_client.delete_blob()
             print("Blob deleted successfully!")
-        else:
-            print("Blob does not exist!")
-
-    except Exception as e:
-        print("Failed to delete blob. Error:" + str(e))
 
 
 with DAG(
