@@ -65,20 +65,17 @@ def remove_unblurred_images(**context):
     - blurred them
     - stored the metadata in the postgres database
     """
-    date_ = context["dag_run"].conf["date"] # retrieve date again since it works differently with python operator
-    container_client = blob_service_client.get_container_client(container="unblurred")
-    blob_list = container_client.list_blobs()
+    date_ = context["dag_run"].conf["date"]  # retrieve date again since it works differently with python operator
+    blob_list = blob_service_client.get_container_client(container="unblurred").list_blobs()
+    counter = 0
     for blob in blob_list:
-        print(f"blob is {blob}")
-        path = blob.name
-        print(f"path is {path}")
-        if path.split("/")[0] == date_:  # only delete images from one date
-            todelete_blob_client = blob_service_client.get_blob_client(container="unblurred", blob=path)
+        if blob.name.split("/")[0] == date_:  # only delete images from one date
+            todelete_blob_client = blob_service_client.get_blob_client(container="unblurred", blob=blob.name)
             todelete_blob_client.delete_blob()
-            print("Blob deleted successfully!")
-        else:
-            first_elem = path.split("/")[0]
-            print(f"date should be {date_} but it is {first_elem}")
+            counter = counter + 1
+
+    print(f"Successfully deleted {counter} files!")
+
 
 with DAG(
         DAG_ID,
