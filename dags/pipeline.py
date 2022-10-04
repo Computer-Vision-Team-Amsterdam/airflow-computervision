@@ -183,12 +183,6 @@ with DAG(
         volume_mounts=[],
     )
 
-    remove_unblurred_images = PythonOperator(
-        task_id='remove_unblurred_images',
-        python_callable=remove_unblurred_images,
-        provide_context=True,
-        dag=dag)
-
     """
     detect_containers = KubernetesPodOperator(
         task_id='detect_containers',
