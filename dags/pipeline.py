@@ -209,7 +209,7 @@ with DAG(
         volumes=[],
         volume_mounts=[],
     )
-    
+
     remove_unblurred_images = PythonOperator(
         task_id='remove_unblurred_images',
         python_callable=remove_unblurred_images,
@@ -217,8 +217,10 @@ with DAG(
         dag=dag
     )
 
+
 # FLOW
 
     flow = retrieve_images >> [blur_images, store_images_metadata] >> remove_unblurred_images >> detect_containers
+
 
 
