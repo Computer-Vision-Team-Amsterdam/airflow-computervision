@@ -9,7 +9,7 @@ from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
     KubernetesPodOperator,
 )
 
-from azure.storage.blob import BlobServiceClient, BlockBlobService
+from azure.storage.blob import BlobServiceClient
 from azure.identity import ManagedIdentityCredential
 
 
