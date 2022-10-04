@@ -19,7 +19,7 @@ BLUR_CONTAINER_IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/blur:l
 METADATA_CONTAINER_IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/store_metadata:latest'
 DETECT_CONTAINER_IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/detection:latest'
 
-date = '{{dag_run.conf["date"]}}'  # set in config when triggering DAG
+DATE = '{{dag_run.conf["date"]}}'  # set in config when triggering DAG
 
 # Command that you want to run on container start
 DAG_ID: Final = "cvt-pipeline"
@@ -92,6 +92,7 @@ with DAG(
         template_searchpath=["/"],
         catchup=False,
 ) as dag:
+
     """
     retrieve_images = KubernetesPodOperator(
             task_id='retrieve_images',
@@ -101,7 +102,7 @@ with DAG(
             # add them here.
             env_vars=get_generic_vars(),
             cmds=["python"],
-            arguments=["/opt/retrieve_images.py", "--date", date],
+            arguments=["/opt/retrieve_images.py", "--date", DATE],
             labels=DAG_LABEL,
             name=DAG_ID,
             # Determines when to pull a fresh image, if 'IfNotPresent' will cause
@@ -139,7 +140,7 @@ with DAG(
         image=BLUR_CONTAINER_IMAGE,
         env_vars=get_generic_vars(),
         cmds=["python"],
-        arguments=["/app/blur.py",  "--date", date],
+        arguments=["/app/blur.py",  "--date", DATE],
         labels=DAG_LABEL,
         name=DAG_ID,
         image_pull_policy="Always",
@@ -156,6 +157,7 @@ with DAG(
         volumes=[],
         volume_mounts=[],
     )
+    """
 
     store_images_metadata = KubernetesPodOperator(
         task_id='store_images_metadata',
@@ -163,7 +165,7 @@ with DAG(
         image=METADATA_CONTAINER_IMAGE,
         env_vars=get_generic_vars(),
         cmds=["python"],
-        arguments=["/opt/metadata_to_postgresql.py", "--date", date],
+        arguments=["/opt/metadata_to_postgresql.py", "--date", DATE],
         labels=DAG_LABEL,
         name=DAG_ID,
         image_pull_policy="Always",
@@ -181,7 +183,7 @@ with DAG(
         volume_mounts=[],
     )
 
-    
+    """
     detect_containers = KubernetesPodOperator(
         task_id='detect_containers',
         namespace=AKS_NAMESPACE,
@@ -189,7 +191,7 @@ with DAG(
         env_vars=get_generic_vars(),
         cmds=["python"],
         arguments=["/app/inference.py",
-                   "--subset", date,
+                   "--subset", DATE,
                    "--device", "cpu",
                    "--data_folder", "blurred",
                    "--weights", "model_final.pth",
@@ -210,17 +212,17 @@ with DAG(
         volumes=[],
         volume_mounts=[],
     )
-    """
+    
     remove_unblurred_images = PythonOperator(
         task_id='remove_unblurred_images',
         python_callable=remove_unblurred_images,
         provide_context=True,
         dag=dag)
+    """
 
 # FLOW
 
     #flow = retrieve_images >> [blur_images, store_images_metadata] >> remove_unblurred_images >> detect_containers
-    #flow_0 = store_images_metadata
-    flow = remove_unblurred_images
+    flow = store_images_metadata
 
 
