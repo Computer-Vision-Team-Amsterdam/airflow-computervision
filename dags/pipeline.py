@@ -76,7 +76,9 @@ def remove_unblurred_images():
             todelete_blob_client = blob_service_client.get_blob_client(container="unblurred", blob=path)
             todelete_blob_client.delete_blob()
             print("Blob deleted successfully!")
-
+        else:
+            first_elem = path.split("/")[0]
+            print(f"date should be {date} but it is {first_elem}")
 
 with DAG(
         DAG_ID,
