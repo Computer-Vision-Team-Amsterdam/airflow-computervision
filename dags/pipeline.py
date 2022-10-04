@@ -157,6 +157,7 @@ with DAG(
         volumes=[],
         volume_mounts=[],
     )
+    """
 
     store_images_metadata = KubernetesPodOperator(
         task_id='store_images_metadata',
@@ -188,6 +189,7 @@ with DAG(
         provide_context=True,
         dag=dag)
 
+    """
     detect_containers = KubernetesPodOperator(
         task_id='detect_containers',
         namespace=AKS_NAMESPACE,
@@ -226,6 +228,7 @@ with DAG(
 # FLOW
 
     #flow = retrieve_images >> [blur_images, store_images_metadata] >> remove_unblurred_images >> detect_containers
+    flow_0 = store_images_metadata
     flow = remove_unblurred_images
 
 
