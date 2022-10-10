@@ -16,9 +16,8 @@ from azure.identity import ManagedIdentityCredential
 # [registry]/[imagename]:[tag]
 RETRIEVAL_CONTAINER_IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/retrieve:latest'
 BLUR_CONTAINER_IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/blur:latest'
-METADATA_CONTAINER_IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/store_metadata:latest'
 DETECT_CONTAINER_IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/detection:latest'
-
+UPLOAD_TO_POSTGRES_CONTAINER_IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/upload_to_postgres:latest'
 DATE = '{{dag_run.conf["date"]}}'  # set in config when triggering DAG
 
 # Command that you want to run on container start
@@ -160,10 +159,10 @@ with DAG(
     store_images_metadata = KubernetesPodOperator(
         task_id='store_images_metadata',
         namespace=AKS_NAMESPACE,
-        image=METADATA_CONTAINER_IMAGE,
+        image=UPLOAD_TO_POSTGRES_CONTAINER_IMAGE,
         env_vars=get_generic_vars(),
         cmds=["python"],
-        arguments=["/opt/metadata_to_postgresql.py", "--date", DATE],
+        arguments=["/opt/upload_to_postgres.py", "--table", "images"],
         labels=DAG_LABEL,
         name=DAG_ID,
         image_pull_policy="Always",
@@ -217,10 +216,35 @@ with DAG(
         dag=dag
     )
 
+    store_detections = KubernetesPodOperator(
+        task_id='store_detections',
+        namespace=AKS_NAMESPACE,
+        image=UPLOAD_TO_POSTGRES_CONTAINER_IMAGE,
+        env_vars=get_generic_vars(),
+        cmds=["python"],
+        arguments=["/opt/upload_to_postgres.py", "--table", "detections"],
+        labels=DAG_LABEL,
+        name=DAG_ID,
+        image_pull_policy="Always",
+        get_logs=True,
+        in_cluster=True,
+        is_delete_operator_pod=False,
+        log_events_on_failure=True,
+        hostnetwork=True,
+        reattach_on_restart=True,
+        dag=dag,
+        startup_timeout_seconds=3600,
+        execution_timeout=timedelta(hours=4),
+        node_selector={"nodetype": AKS_NODE_POOL},
+        volumes=[],
+        volume_mounts=[],
+    )
+
 
 # FLOW
 
     flow = retrieve_images >> [blur_images, store_images_metadata] >> remove_unblurred_images >> detect_containers
+    flow_part_2 = detect_containers >> store_detections
 
 
 
