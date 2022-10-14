@@ -103,9 +103,9 @@ def _post_signal(access_token):
 
 def check_sia_connection():
     access_token = _get_access_token("sia-cvt", f"{sia_password.value}")
-    print(_get_signals_page(access_token, "?page_size=1"))
+    # print(_get_signals_page(access_token, "?page_size=1"))
 
-    print(_post_signal(access_token))
+    # print(_post_signal(access_token))
 
 
 with DAG(
