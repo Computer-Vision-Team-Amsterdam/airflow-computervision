@@ -12,6 +12,7 @@ from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
 
 # [registry]/[imagename]:[tag]
 IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/postprocessing:latest'
+DATE = '{{dag_run.conf["date"]}}'  # set in config when triggering DAG
 
 # Command that you want to run on container start
 DAG_ID: Final = "test_postprocessing"
@@ -67,7 +68,8 @@ with DAG(
             image=IMAGE,
             env_vars=get_generic_vars(),
             cmds=["python"],
-            arguments=["/app/postprocessing.py"],
+            arguments=["/app/postprocessing.py",
+                       "--date", DATE],
             labels=DAG_LABEL,
             name=DAG_ID,
             image_pull_policy="Always",

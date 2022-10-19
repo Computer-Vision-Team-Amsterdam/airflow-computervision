@@ -45,11 +45,14 @@ def to_signal(text: str, date_now, lat_lng: dict):
             }
         },
         "category": {
-            "sub_category": "/signals/v1/public/terms/categories/overig/sub_categories/overig"
+            "sub_category": "signals/v1/public/terms/categories/overlast-in-de-openbare-ruimte/sub_categories/hinderlijk-geplaatst-object"
         },
         "reporter": {
             "email": "cvt@amsterdam.nl"
         },
+        "priority": {
+            "priority": "low",
+        }
         "incident_date_start": date_now.strftime("%Y-%m-%d %H:%M")
     }
 
@@ -76,6 +79,7 @@ def _get_signals_page(access_token, page):
     response = requests.get(BASE_URL, headers=headers)
 
     if response.status_code == 200:
+        print("The server successfully performed the GET request.")
         return response.json()
     else:
         return response.raise_for_status()
@@ -97,6 +101,7 @@ def _post_signal(access_token):
     )
 
     if response.status_code == 200:
+        print("The server successfully performed the POST request.")
         return response.json()
     else:
         return response.raise_for_status()
