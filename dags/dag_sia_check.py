@@ -52,7 +52,7 @@ def to_signal(text: str, date_now, lat_lng: dict):
         },
         "priority": {
             "priority": "low",
-        }
+        },
         "incident_date_start": date_now.strftime("%Y-%m-%d %H:%M")
     }
 
