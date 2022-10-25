@@ -15,6 +15,13 @@ DAG_LABEL: Final = {"team_name": DATATEAM_OWNER}
 AKS_NAMESPACE: Final = os.getenv("AIRFLOW__KUBERNETES__NAMESPACE")
 AKS_NODE_POOL: Final = "cvision2work"
 
+# List here all environment variables that also needs to be
+# used inside the K8PodOperator pod.
+GENERIC_VARS_NAMES: list = [
+    "USER_ASSIGNED_MANAGED_IDENTITY",
+    "AIRFLOW__SECRETS__BACKEND_KWARGS",
+]
+
 def get_generic_vars() -> dict[str, str]:
     """Get generic environment variables all containers will need.
 
