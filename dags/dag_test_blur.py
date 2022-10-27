@@ -46,21 +46,25 @@ def get_generic_vars() -> dict[str, str]:
 
 
 with DAG(
-    DAG_ID,
-    description="Dag to check individual containers before adding them into the pipeline",
-    default_args={
-        'depends_on_past': False,
-        'email': ['airflow@example.com'],
-        'email_on_failure': False,
-        'email_on_retry': False,
-        'retries': 1,
-        'retry_delay': timedelta(minutes=5),
-        'start_date': days_ago(1),
-    },
-    template_searchpath=["/"],
-    catchup=False,
+        DAG_ID,
+        description="Dag to check individual containers before adding them into the pipeline",
+        default_args={
+            'depends_on_past': False,
+            'email': ['airflow@example.com'],
+            'email_on_failure': False,
+            'email_on_retry': False,
+            'retries': 1,
+            'retry_delay': timedelta(minutes=5),
+            'start_date': days_ago(1),
+        },
+        template_searchpath=["/"],
+        catchup=False,
 ) as dag:
-
+    decos = BashOperator(
+        task_id='decos-connection',
+        bash_command='ping sfte.amsterdam.nl',
+    )
+    """
     blur = KubernetesPodOperator(
             task_id='blur',
             namespace=AKS_NAMESPACE,
@@ -85,8 +89,8 @@ with DAG(
             volumes=[],
             volume_mounts=[],
         )
-
+    """
 # FLOW
 var = (
-        blur
+    decos
 )
