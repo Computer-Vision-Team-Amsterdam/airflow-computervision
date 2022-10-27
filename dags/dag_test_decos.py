@@ -11,10 +11,10 @@ from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
 )
 
 # [registry]/[imagename]:[tag]
-IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/blur:latest'
+IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/decos:latest'
 
 # Command that you want to run on container start
-DAG_ID: Final = "test_blur"
+DAG_ID: Final = "test_decos"
 DATATEAM_OWNER: Final = "cvision2"
 DAG_LABEL: Final = {"team_name": DATATEAM_OWNER}
 AKS_NAMESPACE: Final = os.getenv("AIRFLOW__KUBERNETES__NAMESPACE")
@@ -60,18 +60,14 @@ with DAG(
         template_searchpath=["/"],
         catchup=False,
 ) as dag:
-    decos = BashOperator(
-        task_id='decos-connection',
-        bash_command='ping sfte.amsterdam.nl',
-    )
-    """
-    blur = KubernetesPodOperator(
-            task_id='blur',
+
+    decos = KubernetesPodOperator(
+            task_id='decos',
             namespace=AKS_NAMESPACE,
             image=IMAGE,
             env_vars=get_generic_vars(),
-            cmds=["python"],
-            arguments=["/app/blur.py", "--date", date],
+            cmds=["bash", "-cx"],
+            arguments=["ping sfte.amsterdam.nl"],
             labels=DAG_LABEL,
             name=DAG_ID,
             image_pull_policy="Always",
@@ -89,7 +85,7 @@ with DAG(
             volumes=[],
             volume_mounts=[],
         )
-    """
+
 # FLOW
 var = (
     decos
