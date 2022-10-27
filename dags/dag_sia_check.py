@@ -1,59 +1,40 @@
-import json
-import os
 from datetime import timedelta
-import shutil
-import socket
-from datetime import datetime
-from pathlib import Path
-from typing import Final, Optional, Tuple
+from typing import Final, Optional
+import os
 from airflow.utils.dates import days_ago
-
-import requests
-from requests.auth import HTTPBasicAuth
-from azure.identity import ManagedIdentityCredential
-from azure.keyvault.secrets import SecretClient
-
 from airflow import DAG
-from airflow.operators.python_operator import PythonOperator
+from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
+    KubernetesPodOperator,
+)
 
-# Command that you want to run on container start
+IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/sia:latest'
+
 DAG_ID: Final = "sia"
 DATATEAM_OWNER: Final = "cvision2"
 DAG_LABEL: Final = {"team_name": DATATEAM_OWNER}
 AKS_NAMESPACE: Final = os.getenv("AIRFLOW__KUBERNETES__NAMESPACE")
 AKS_NODE_POOL: Final = "cvision2work"
 
+# List here all environment variables that also needs to be
+# used inside the K8PodOperator pod.
+GENERIC_VARS_NAMES: list = [
+    "USER_ASSIGNED_MANAGED_IDENTITY",
+    "AIRFLOW__SECRETS__BACKEND_KWARGS",
+]
 
-client_id = os.getenv("USER_ASSIGNED_MANAGED_IDENTITY")
-credential = ManagedIdentityCredential(client_id=client_id)
+def get_generic_vars() -> dict[str, str]:
+    """Get generic environment variables all containers will need.
 
-airflow_secrets = json.loads(os.environ["AIRFLOW__SECRETS__BACKEND_KWARGS"])
-KVUri = airflow_secrets["vault_url"]
+    Note: The K8PodOperator spins up a new node. This node needs
+        to be fed with the nessacery env vars. Its not inheriting
+        it from his big brother/sister/neutral the worker pod.
 
-client = SecretClient(vault_url=KVUri, credential=credential)
-sia_password = client.get_secret(name="sia-password-acc")
-socket.setdefaulttimeout(100)
-
-
-def check_sia_connection():
-    data = {
-        'grant_type': 'client_credentials',
-        'client_id': 'sia-cvt',
-        'client_secret': f'{sia_password.value}',
+    :returns: All (generic) environment variables that need to be included into the container.
+    """
+    GENERIC_VARS_DICT: dict[str, str] = {
+        variable: os.environ[variable] for variable in GENERIC_VARS_NAMES
     }
-
-    print(data)
-    tokenURL = 'https://iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/token'
-    response = requests.post(tokenURL, data=data)
-
-    if response.status_code == 200:
-        token = response.json()["access_token"]
-        url = "https://acc.api.data.amsterdam.nl/signals/v1/private/signals"
-        headers = {'Authorization': "Bearer {}".format(token)}
-        response = requests.get(url, headers=headers)
-        print(f"Respose status SIA private endpoint: {response.status_code}.")
-    else:
-        print(f"Response status code for token {response.status_code}")
+    return GENERIC_VARS_DICT
 
 with DAG(
     DAG_ID,
@@ -70,12 +51,30 @@ with DAG(
     template_searchpath=["/"],
     catchup=False,
 ) as dag:
-
-    test_sia = PythonOperator(task_id='test_sia',
-                              python_callable=check_sia_connection,
-                              provide_context=True,
-                              dag=dag)
-
+    test_sia = KubernetesPodOperator(
+            task_id='test_sia',
+            namespace=AKS_NAMESPACE,
+            image=IMAGE,
+            env_vars=get_generic_vars(),
+            cmds=["python"],
+            arguments=["/app/submit_to_sia.py"],
+            labels=DAG_LABEL,
+            name=DAG_ID,
+            image_pull_policy="Always",
+            get_logs=True,
+            in_cluster=True,  # if true uses our service account token as aviable in Airflow on K8
+            is_delete_operator_pod=False,  # if true delete pod when pod reaches its final state.
+            log_events_on_failure=True,  # if true log the pod’s events if a failure occurs
+            hostnetwork=True,  # If True enable host networking on the pod. Beware, this value must be
+            # set to true if you want to make use of the pod-identity facilities like managed identity.
+            reattach_on_restart=True,
+            dag=dag,
+            startup_timeout_seconds=3600,
+            execution_timeout=timedelta(hours=4),
+            node_selector={"nodetype": AKS_NODE_POOL},
+            volumes=[],
+            volume_mounts=[],
+        )
 
 # FLOW
 var = (

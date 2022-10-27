@@ -17,6 +17,7 @@ from azure.identity import ManagedIdentityCredential
 RETRIEVAL_CONTAINER_IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/retrieve:latest'
 BLUR_CONTAINER_IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/blur:latest'
 DETECT_CONTAINER_IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/detection:latest'
+POSTPROCESSING_CONTAINER_IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/postprocessing:latest'
 UPLOAD_TO_POSTGRES_CONTAINER_IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/upload_to_postgres:latest'
 DATE = '{{dag_run.conf["date"]}}'  # set in config when triggering DAG
 
@@ -220,6 +221,32 @@ with DAG(
         dag=dag
     )
 
+    postprocessing = KubernetesPodOperator(
+            task_id='postprocessing',
+            namespace=AKS_NAMESPACE,
+            image=POSTPROCESSING_CONTAINER_IMAGE,
+            env_vars=get_generic_vars(),
+            cmds=["python"],
+            arguments=["/app/postprocessing.py",
+                       "--date", DATE],
+            labels=DAG_LABEL,
+            name=DAG_ID,
+            image_pull_policy="Always",
+            get_logs=True,
+            in_cluster=True,  # if true uses our service account token as aviable in Airflow on K8
+            is_delete_operator_pod=False,  # if true delete pod when pod reaches its final state.
+            log_events_on_failure=True,  # if true log the pod’s events if a failure occurs
+            hostnetwork=True,  # If True enable host networking on the pod. Beware, this value must be
+            # set to true if you want to make use of the pod-identity facilities like managed identity.
+            reattach_on_restart=True,
+            dag=dag,
+            startup_timeout_seconds=3600,
+            execution_timeout=timedelta(hours=4),
+            node_selector={"nodetype": AKS_NODE_POOL},
+            volumes=[],
+            volume_mounts=[],
+        )
+
     store_detections = KubernetesPodOperator(
         task_id='store_detections',
         namespace=AKS_NAMESPACE,
@@ -249,8 +276,8 @@ with DAG(
 
 # FLOW
 
-    flow = retrieve_images >> [blur_images, store_images_metadata] >> remove_unblurred_images >> detect_containers
-    flow_part_2 = detect_containers >> store_detections
+    flow = retrieve_images >> [blur_images, store_images_metadata] >> remove_unblurred_images >> \
+           detect_containers  >> postprocessing >> store_detections
 
 
 
