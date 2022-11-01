@@ -5,7 +5,6 @@ from airflow.utils.dates import days_ago
 
 from airflow import DAG
 
-from airflow.operators.bash import BashOperator
 from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
     KubernetesPodOperator,
 )
@@ -27,9 +26,6 @@ GENERIC_VARS_NAMES: list = [
     "USER_ASSIGNED_MANAGED_IDENTITY",
     "AIRFLOW__SECRETS__BACKEND_KWARGS",
 ]
-
-date = '{{dag_run.conf["date"]}}' # TODO
-
 
 def get_generic_vars() -> dict[str, str]:
     """Get generic environment variables all containers will need.
