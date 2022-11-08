@@ -5,7 +5,7 @@
 from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
-from common import default_args
+from common import default_args, MessageOperator
 
 team_name = "dave"
 workload_name = "example-normal-dag"
@@ -23,12 +23,14 @@ with DAG(
     description="Hello World DAG",
     schedule_interval="0 12 * * *",
 ) as dag:
+    slack_at_start = MessageOperator(task_id="slack_at_start")
+
     task1 = BashOperator(
-        task_id="send_slack_message",
-        bash_command= "echo 'This command could be adapted to send a message on Slack.'",
+        task_id="bash_echo_message",
+        bash_command= "echo 'This command could be adapted to do something more interesting than sending a message.'",
     )
 
     task2 = PythonOperator(task_id="hello_task", python_callable=print_hello)
 
-(task1 >> task2)
+(slack_at_start >> task1 >> task2)
 
