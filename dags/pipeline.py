@@ -356,7 +356,7 @@ with DAG(
 # FLOW
 
     flow = retrieve_images >> [blur_images, store_images_metadata] >> remove_unblurred_images >> \
-           detect_containers  >> remove_no_container_images >> store_detections >> postprocessing >> \
+           detect_containers  >> store_detections >> remove_no_container_images >> postprocessing >> \
            submit_to_sia >> remove_all_blobs
 
 
