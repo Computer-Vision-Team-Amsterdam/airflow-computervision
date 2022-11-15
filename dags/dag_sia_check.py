@@ -7,7 +7,7 @@ from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
     KubernetesPodOperator,
 )
 
-IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/sia:latest'
+IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/submit_to_sia:latest'
 
 DAG_ID: Final = "sia"
 DATATEAM_OWNER: Final = "cvision2"
