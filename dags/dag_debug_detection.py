@@ -75,7 +75,7 @@ with DAG(
         image_pull_policy="Always",
         get_logs=True,
         in_cluster=True,
-        is_delete_operator_pod=False,
+        is_delete_operator_pod=True,
         log_events_on_failure=True,
         hostnetwork=True,
         reattach_on_restart=True,
