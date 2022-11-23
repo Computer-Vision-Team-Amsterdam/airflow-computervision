@@ -13,6 +13,8 @@ from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
 from azure.storage.blob import BlobServiceClient
 from azure.identity import ManagedIdentityCredential
 
+from common import OTAP_ENVIRONMENT, MessageOperator
+
 
 # [registry]/[imagename]:[tag]
 RETRIEVAL_CONTAINER_IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/retrieve:latest'
@@ -84,6 +86,7 @@ def remove_unblurred_images(**context):
 def _post_to_slack(message_header, context):
     message = f"""
         {message_header}
+        *Environment* {OTAP_ENVIRONMENT}
         *Task*: {context["task"].task_id}
         *Dag*: {context["dag"].dag_id}
         *Execution Time*: {context["ts"]}
@@ -135,11 +138,8 @@ with DAG(
         catchup=False,
 ) as dag:
 
-    slack_at_start = SlackAPIPostOperator(
+    slack_at_start = MessageOperator(
         task_id="slack_at_start",
-        token=SLACK_TOKEN,
-        text=f":arrow_forward: Starting DAG \"{DAG_ID}\"",
-        channel=SLACK_CHANNEL,
     )
 
     retrieve_images = KubernetesPodOperator(
