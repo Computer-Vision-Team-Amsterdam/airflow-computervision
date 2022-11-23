@@ -33,7 +33,7 @@ DAG_LABEL: Final = {"team_name": DATATEAM_OWNER}
 AKS_NAMESPACE: Final = os.getenv("AIRFLOW__KUBERNETES__NAMESPACE")
 AKS_NODE_POOL: Final = "cvision2work"
 SLACK_CHANNEL: Final = os.environ.get("SLACK_CHANNEL")
-SLACK_TOKEN: Final = os.environ.get("SLACK_WEBHOOK_TOKEN")
+SLACK_TOKEN: Final = os.environ.get("SLACK_WEBHOOK")
 
 # List here all environment variables that also needs to be
 # used inside the K8PodOperator pod.
