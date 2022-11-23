@@ -5,6 +5,7 @@ from airflow.utils.dates import days_ago
 
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
+from airflow.providers.slack.operators.slack import SlackAPIPostOperator
 from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
     KubernetesPodOperator,
 )
@@ -29,6 +30,8 @@ DATATEAM_OWNER: Final = "cvision2"
 DAG_LABEL: Final = {"team_name": DATATEAM_OWNER}
 AKS_NAMESPACE: Final = os.getenv("AIRFLOW__KUBERNETES__NAMESPACE")
 AKS_NODE_POOL: Final = "cvision2work"
+SLACK_CHANNEL: Final = os.environ.get("SLACK_CHANNEL")
+SLACK_TOKEN: Final = os.environ.get("SLACK_WEBHOOK_TOKEN")
 
 # List here all environment variables that also needs to be
 # used inside the K8PodOperator pod.
@@ -78,6 +81,40 @@ def remove_unblurred_images(**context):
 
     print(f"Successfully deleted {counter} files!")
 
+def _post_to_slack(message_header, context):
+    message = f"""
+        {message_header}
+        *Task*: {context["task"].task_id}
+        *Dag*: {context["dag"].dag_id}
+        *Execution Time*: {context["ts"]}
+        *Log Url*: {context["ti"].log_url}
+        """,
+    operator = SlackAPIPostOperator(
+        task_id="slack_status_message",
+        token=SLACK_TOKEN,
+        text=message,
+        channel=SLACK_CHANNEL,
+    )
+    return operator.execute
+
+def on_failure(context):
+    return _post_to_slack(
+        ":red_circle: DAG Failed.",
+        context,
+    )
+
+def on_retry(context):
+    return _post_to_slack(
+        ":warning: Retrying DAG.",
+        context,
+    )
+
+def on_success(context):
+    return _post_to_slack(
+        ":white_check_mark: DAG Succeeded.",
+        context,
+    )
+
 
 with DAG(
         DAG_ID,
@@ -90,10 +127,20 @@ with DAG(
             'retries': 1,
             'retry_delay': timedelta(minutes=5),
             'start_date': days_ago(1),
+            "on_failure_callback": on_failure,
+            "on_retry_callback": on_retry,
+            "on_success_callback": on_success,
         },
         template_searchpath=["/"],
         catchup=False,
 ) as dag:
+
+    slack_at_start = SlackAPIPostOperator(
+        task_id="slack_at_start",
+        token=SLACK_TOKEN,
+        text=f":arrow_forward: Starting DAG \"{DAG_ID}\"",
+        channel=SLACK_CHANNEL,
+    )
 
     retrieve_images = KubernetesPodOperator(
             task_id='retrieve_images',
@@ -355,7 +402,7 @@ with DAG(
 
 # FLOW
 
-    flow = retrieve_images >> [blur_images, store_images_metadata] >> remove_unblurred_images >> \
+    flow = slack_at_start >> retrieve_images >> [blur_images, store_images_metadata] >> remove_unblurred_images >> \
            detect_containers  >> store_detections >> remove_no_container_images >> postprocessing >> \
            submit_to_sia >> remove_all_blobs
 
