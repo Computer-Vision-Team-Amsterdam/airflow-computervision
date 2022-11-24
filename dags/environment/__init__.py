@@ -14,15 +14,14 @@ __all__ = [
     "UPLOAD_TO_POSTGRES_CONTAINER_IMAGE",
 ]
 
-raise ValueError(OTAP_ENVIRONMENT)
 module_name = ""
-if OTAP_ENVIRONMENT.lower() == "ont":
+if OTAP_ENVIRONMENT.lower().endswith("ont"):
     module_name = "environment.development"
-if OTAP_ENVIRONMENT.lower() == "tst":
+if OTAP_ENVIRONMENT.lower().endswith("tst"):
     module_name = "environment.test"
-if OTAP_ENVIRONMENT.lower() == "acc":
+if OTAP_ENVIRONMENT.lower().endswith("acc"):
     module_name = "environment.acceptance"
-if OTAP_ENVIRONMENT.lower() == "prd":
+if OTAP_ENVIRONMENT.lower().endswith("prd"):
     module_name = "environment.production"
 
 module = importlib.import_module(module_name)
