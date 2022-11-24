@@ -8,7 +8,7 @@ from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
     KubernetesPodOperator,
 )
 
-from dags.environment import DETECT_CONTAINER_IMAGE
+from environment import DETECT_CONTAINER_IMAGE
 
 # Command that you want to run on container start
 DAG_ID: Final = "debugging-detection"

@@ -12,16 +12,15 @@ from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
 from azure.storage.blob import BlobServiceClient
 from azure.identity import ManagedIdentityCredential
 
-from dags.environment import (
+from environment import (
     BLUR_CONTAINER_IMAGE,
-    RETRIEVAL_CONTAINER_IMAGE,
-    POSTPROCESSING_CONTAINER_IMAGE,
-    UPLOAD_TO_POSTGRES_CONTAINER_IMAGE,
-    SUBMIT_TO_SIA_IMAGE,
     DELETE_BLOBS_IMAGE,
+    DETECT_CONTAINER_IMAGE,
+    POSTPROCESSING_CONTAINER_IMAGE,
+    RETRIEVAL_CONTAINER_IMAGE,
+    SUBMIT_TO_SIA_IMAGE,
+    UPLOAD_TO_POSTGRES_CONTAINER_IMAGE,
 )
-DETECT_CONTAINER_IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/detection:latest'
-
 
 # [registry]/[imagename]:[tag]
 DATE = '{{dag_run.conf["date"]}}'  # set in config when triggering DAG
