@@ -1,6 +1,6 @@
 import os
 from datetime import timedelta
-from typing import Final, Optional
+from typing import Final
 from airflow.utils.dates import days_ago
 
 from airflow import DAG
@@ -12,15 +12,18 @@ from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
 from azure.storage.blob import BlobServiceClient
 from azure.identity import ManagedIdentityCredential
 
+from dags.environment import (
+    BLUR_CONTAINER_IMAGE,
+    RETRIEVAL_CONTAINER_IMAGE,
+    DETECT_CONTAINER_IMAGE,
+    POSTPROCESSING_CONTAINER_IMAGE,
+    UPLOAD_TO_POSTGRES_CONTAINER_IMAGE,
+    SUBMIT_TO_SIA_IMAGE,
+    DELETE_BLOBS_IMAGE,
+)
+
 
 # [registry]/[imagename]:[tag]
-RETRIEVAL_CONTAINER_IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/retrieve:latest'
-BLUR_CONTAINER_IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/blur:latest'
-DETECT_CONTAINER_IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/detection:latest'
-POSTPROCESSING_CONTAINER_IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/postprocessing:latest'
-UPLOAD_TO_POSTGRES_CONTAINER_IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/upload_to_postgres:latest'
-SUBMIT_TO_SIA_IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/submit_to_sia:latest'
-DELETE_BLOBS_IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/delete_blobs:latest'
 DATE = '{{dag_run.conf["date"]}}'  # set in config when triggering DAG
 
 # Command that you want to run on container start
