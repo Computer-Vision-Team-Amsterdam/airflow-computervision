@@ -1,6 +1,6 @@
 import os
 from datetime import timedelta
-from typing import Final
+from typing import Final, Optional
 from airflow.utils.dates import days_ago
 
 from airflow import DAG
@@ -15,12 +15,12 @@ from azure.identity import ManagedIdentityCredential
 from dags.environment import (
     BLUR_CONTAINER_IMAGE,
     RETRIEVAL_CONTAINER_IMAGE,
-    DETECT_CONTAINER_IMAGE,
     POSTPROCESSING_CONTAINER_IMAGE,
     UPLOAD_TO_POSTGRES_CONTAINER_IMAGE,
     SUBMIT_TO_SIA_IMAGE,
     DELETE_BLOBS_IMAGE,
 )
+DETECT_CONTAINER_IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/detection:latest'
 
 
 # [registry]/[imagename]:[tag]
