@@ -17,13 +17,13 @@ __all__ = [
 
 module_name = ""
 if OTAP_ENVIRONMENT == "ont":
-    module_name = "dags.environment.development"
+    module_name = "environment.development"
 if OTAP_ENVIRONMENT == "tst":
-    module_name = "dags.environment.test"
+    module_name = "environment.test"
 if OTAP_ENVIRONMENT == "acc":
-    module_name = "dags.environment.acceptance"
+    module_name = "environment.acceptance"
 if OTAP_ENVIRONMENT == "prd":
-    module_name = "dags.environment.production"
+    module_name = "environment.production"
 
 module = importlib.import_module(module_name)
 globals().update({x: getattr(module, x) for x in __all__})
