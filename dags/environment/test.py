@@ -1,12 +1,12 @@
 from pathlib import Path
 
-ACR_URL: Path = Path("cvtweuacrtwingwbb3xpfra.azurecr.io")
+ACR_URL = "cvtweuacrtwingwbb3xpfra.azurecr.io"
 
 # [regiPathy]/[imagename]:[tag]
-RETRIEVAL_CONTAINER_IMAGE: Path = ACR_URL.joinpath("retrieve:latest")
-BLUR_CONTAINER_IMAGE: Path = ACR_URL.joinpath("blur:latest")
-DETECT_CONTAINER_IMAGE: Path = ACR_URL.joinpath("detection:latest")
-POSTPROCESSING_CONTAINER_IMAGE: Path = ACR_URL.joinpath("postprocessing:latest")
-UPLOAD_TO_POSTGRES_CONTAINER_IMAGE: Path = ACR_URL.joinpath("upload_to_postgres:latest")
-SUBMIT_TO_SIA_IMAGE: Path = ACR_URL.joinpath("submit_to_sia:latest")
-DELETE_BLOBS_IMAGE: Path = ACR_URL.joinpath("delete_blobs:latest")
+BLUR_CONTAINER_IMAGE = ACR_URL + "/blur:latest"
+DELETE_BLOBS_IMAGE = ACR_URL + "/delete_blobs:latest"
+DETECT_CONTAINER_IMAGE = ACR_URL + "/detection:latest"
+POSTPROCESSING_CONTAINER_IMAGE = ACR_URL + "/postprocessing:latest"
+RETRIEVAL_CONTAINER_IMAGE = ACR_URL + "/retrieve:latest"
+SUBMIT_TO_SIA_IMAGE = ACR_URL + "/submit_to_sia:latest"
+UPLOAD_TO_POSTGRES_CONTAINER_IMAGE = ACR_URL + "/upload_to_postgres:latest"
