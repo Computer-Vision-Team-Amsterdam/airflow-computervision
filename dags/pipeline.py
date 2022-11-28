@@ -92,6 +92,7 @@ with DAG(
             'retries': 1,
             'retry_delay': timedelta(minutes=5),
             'start_date': days_ago(1),
+            'schedule_interval': None,
         },
         template_searchpath=["/"],
         catchup=False,
