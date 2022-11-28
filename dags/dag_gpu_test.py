@@ -6,6 +6,7 @@ from airflow import DAG
 from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
     KubernetesPodOperator,
 )
+from kubernetes import client
 
 IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/gpu_test:latest'
 
@@ -22,8 +23,14 @@ GENERIC_VARS_NAMES: list = [
     "USER_ASSIGNED_MANAGED_IDENTITY",
     "AIRFLOW__SECRETS__BACKEND_KWARGS",
 ]
-gpu_resources = {"limit_gpu": 1}
-
+gpu_resources = client.V1ResourceRequirements(
+    requests={
+        "cpu": 1,
+        "memory": "1Gi",
+        "ephemeral-storage": "2Gi",
+    },
+    limits={"cpu": 2, "memory": "2Gi", "ephemeral-storage": "4Gi", "nvidia.com/gpu": 1},
+)
 
 def get_generic_vars() -> dict[str, str]:
     """Get generic environment variables all containers will need.
