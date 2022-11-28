@@ -10,7 +10,7 @@ from kubernetes import client
 
 IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/gpu_test:latest'
 
-DAG_ID: Final = "sia"
+DAG_ID: Final = "gpu-test"
 DATATEAM_OWNER: Final = "cvision2"
 DAG_LABEL: Final = {"team_name": DATATEAM_OWNER}
 AKS_NAMESPACE: Final = os.getenv("AIRFLOW__KUBERNETES__NAMESPACE")
