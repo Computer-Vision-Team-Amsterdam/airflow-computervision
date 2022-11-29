@@ -1,6 +1,6 @@
 import os
 from datetime import timedelta
-from typing import Final, Optional
+from typing import Final
 from airflow.utils.dates import days_ago
 
 from airflow import DAG
@@ -13,6 +13,7 @@ from azure.storage.blob import BlobServiceClient
 from azure.identity import ManagedIdentityCredential
 
 from environment import (
+    BLOB_URL,
     BLUR_CONTAINER_IMAGE,
     DELETE_BLOBS_IMAGE,
     DETECT_CONTAINER_IMAGE,
@@ -43,7 +44,7 @@ GENERIC_VARS_NAMES: list = [
 
 client_id = os.getenv("USER_ASSIGNED_MANAGED_IDENTITY")
 credential = ManagedIdentityCredential(client_id=client_id)
-blob_service_client = BlobServiceClient(account_url="https://cvtdataweuogidgmnhwma3zq.blob.core.windows.net",
+blob_service_client = BlobServiceClient(account_url=BLOB_URL,
                                        credential=credential)
 
 

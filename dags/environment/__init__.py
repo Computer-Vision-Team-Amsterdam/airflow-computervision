@@ -5,6 +5,7 @@ from common import OTAP_ENVIRONMENT
 
 # Variables that should be present in all environments
 __all__ = [
+    "BLOB_URL",
     "BLUR_CONTAINER_IMAGE",
     "DELETE_BLOBS_IMAGE",
     "DETECT_CONTAINER_IMAGE",
