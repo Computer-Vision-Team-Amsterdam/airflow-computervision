@@ -1,6 +1,7 @@
 from pathlib import Path
 
 ACR_URL = "cvtweuacrtwingwbb3xpfra.azurecr.io"
+BLOB_URL = "https://cvtdataweutwingwbb3xpfra.blob.core.windows.net"
 
 # [regiPathy]/[imagename]:[tag]
 BLUR_CONTAINER_IMAGE = ACR_URL + "/blur:latest"
