@@ -24,12 +24,7 @@ GENERIC_VARS_NAMES: list = [
     "AIRFLOW__SECRETS__BACKEND_KWARGS",
 ]
 gpu_resources = client.V1ResourceRequirements(
-    requests={
-        "cpu": 1,
-        "memory": "1Gi",
-        "ephemeral-storage": "2Gi",
-    },
-    limits={"cpu": 2, "memory": "2Gi", "ephemeral-storage": "4Gi", "nvidia.com/gpu": 1},
+    limits={"nvidia.com/gpu": 1},
 )
 
 def get_generic_vars() -> dict[str, str]:
