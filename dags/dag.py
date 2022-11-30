@@ -4,7 +4,6 @@ import json
 from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
-from airflow.models import Variable
 from azure.keyvault.secrets import SecretClient
 from azure.identity import ManagedIdentityCredential
 
@@ -15,14 +14,9 @@ airflow_secrets = json.loads(os.environ["AIRFLOW__SECRETS__BACKEND_KWARGS"])
 KVUri = airflow_secrets["vault_url"]
 
 client = SecretClient(vault_url=KVUri, credential=credential)
-username = client.get_secret(name="DecosUsername")
-password = client.get_secret(name="DecosPassword")
-url = client.get_secret(name="DecosURL")
-
-username = Variable.get("airflow-variables-DecosUsername")
-password = Variable.get("airflow-variables-DecosPassword")
-url = Variable.get("airflow-variables-DecosURL")
-
+username = client.get_secret(name="airflow-variables-DecosUsername")
+password = client.get_secret(name="airflow-variables-DecosPassword")
+url = client.get_secret(name="airflow-variables-DecosURL")
 
 def login_test(**context):
     values = {'username': username,
