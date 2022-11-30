@@ -39,6 +39,9 @@ def login_test_twee(**context):
 
 def login_test_drie(**context):
     try:
+        from urllib.request import urlopen
+        print(urlopen(url).read())
+
         import requests
         page = requests.get(url, verify=False)
         print(page.text.encode('utf8'))
