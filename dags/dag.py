@@ -1,22 +1,22 @@
 from datetime import datetime
-import os
-import json
 from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
-from azure.keyvault.secrets import SecretClient
-from azure.identity import ManagedIdentityCredential
+from airflow.models import Variable
 
-client_id = os.getenv("USER_ASSIGNED_MANAGED_IDENTITY")
-credential = ManagedIdentityCredential(client_id=client_id)
+try:
+    username = Variable.get("DecosUsername")
+    password = Variable.get("DecosPassword")
+    url = Variable.get("DecosURL")
+except Exception as e:
+    print(e)
 
-airflow_secrets = json.loads(os.environ["AIRFLOW__SECRETS__BACKEND_KWARGS"])
-KVUri = airflow_secrets["vault_url"]
+print("Test in prd.")
+try:
+    print(url.split(".")[0])
+except Exception as e:
+    print(e)
 
-client = SecretClient(vault_url=KVUri, credential=credential)
-username = client.get_secret(name="airflow-variables-DecosUsername")
-password = client.get_secret(name="airflow-variables-DecosPassword")
-url = client.get_secret(name="airflow-variables-DecosURL")
 
 def login_test(**context):
     values = {'username': username,
