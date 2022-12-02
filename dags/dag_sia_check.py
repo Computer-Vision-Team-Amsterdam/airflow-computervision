@@ -15,7 +15,9 @@ DAG_LABEL: Final = {"team_name": DATATEAM_OWNER}
 AKS_NAMESPACE: Final = os.getenv("AIRFLOW__KUBERNETES__NAMESPACE")
 AKS_NODE_POOL: Final = "cvision2work"
 DATE = '{{dag_run.conf["date"]}}'  # set in config when triggering DAG
-START_DAG_DATE = '{{ dag_run.get_task_instance("start").start_date }}'
+# START_DAG_DATE = '{{ dag_run.get_task_instance("start").start_date }}'
+START_DAG_DATE = '{{ dag_run.start_date }}'
+print(START_DAG_DATE)
 
 # List here all environment variables that also needs to be
 # used inside the K8PodOperator pod.
