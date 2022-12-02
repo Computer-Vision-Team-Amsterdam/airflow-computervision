@@ -6,6 +6,7 @@ from airflow import DAG
 from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
     KubernetesPodOperator,
 )
+from common import OTAP_ENVIRONMENT
 
 IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/submit_to_sia:latest'
 
@@ -14,10 +15,12 @@ DATATEAM_OWNER: Final = "cvision2"
 DAG_LABEL: Final = {"team_name": DATATEAM_OWNER}
 AKS_NAMESPACE: Final = os.getenv("AIRFLOW__KUBERNETES__NAMESPACE")
 AKS_NODE_POOL: Final = "cvision2work"
-DATE = '{{dag_run.conf["date"]}}'  # set in config when triggering DAG
-# START_DAG_DATE = '{{ dag_run.get_task_instance("start").start_date }}'
-START_DAG_DATE = '{{ dag_run.start_date }}'
-print(START_DAG_DATE)
+
+if OTAP_ENVIRONMENT.lower().endswith("acc") or OTAP_ENVIRONMENT.lower().endswith("prd"):
+    DATE = '{{dag_run.start_date}}'
+else:
+    # For ont and tst, set in config when triggering DAG
+    DATE = '{{dag_run.conf["date"]}}'
 
 # List here all environment variables that also needs to be
 # used inside the K8PodOperator pod.
@@ -62,8 +65,7 @@ with DAG(
             env_vars=get_generic_vars(),
             cmds=["python"],
             arguments=["/app/submit_to_sia.py",
-                       "--date", DATE,
-                       "--start_date", START_DAG_DATE],
+                       "--date", DATE],
             labels=DAG_LABEL,
             name=DAG_ID,
             image_pull_policy="Always",
