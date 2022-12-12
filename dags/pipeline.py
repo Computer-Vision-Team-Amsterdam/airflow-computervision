@@ -28,7 +28,7 @@ from environment import (
 DATE = '{{dag_run.conf["date"]}}'  # set in config when triggering DAG
 
 # Command that you want to run on container start
-DAG_ID: Final = "cvt-pipeline-v2"
+DAG_ID: Final = "cvt-pipeline"
 DATATEAM_OWNER: Final = "cvision2"
 DAG_LABEL: Final = {"team_name": DATATEAM_OWNER}
 AKS_NAMESPACE: Final = os.getenv("AIRFLOW__KUBERNETES__NAMESPACE")
