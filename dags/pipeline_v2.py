@@ -147,7 +147,7 @@ with DAG(
         image=BLUR_CONTAINER_IMAGE,
         env_vars=get_generic_vars(),
         cmds=["python"],
-        arguments=["/app/blur.py",
+        arguments=["/app/detect.py",
                    "--date", DATE],
         labels=DAG_LABEL,
         name=DAG_ID,
