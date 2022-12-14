@@ -205,12 +205,10 @@ with DAG(
         image=DETECT_CONTAINER_IMAGE,
         env_vars=get_generic_vars(),
         cmds=["python"],
-        arguments=["/app/inference.py",
-                   "--subset", DATE,
+        arguments=["/app/inference_batch.py",
+                   "--date", DATE,
                    "--device", "cpu",
-                   "--data_folder", "blurred",
-                   "--weights", "model_final.pth",
-                   "--output_path", "outputs"],
+                   "--weights", "model_final.pth"],
         labels=DAG_LABEL,
         name=DAG_ID,
         image_pull_policy="Always",
@@ -361,7 +359,7 @@ with DAG(
 # FLOW
 
     flow = retrieve_images >> [blur_images, store_images_metadata] >> remove_unblurred_images >> \
-           detect_containers  >> store_detections >> remove_no_container_images >> postprocessing >> \
+           detect_containers  >> postprocessing >> \
            submit_to_sia >> remove_all_blobs
 
 
