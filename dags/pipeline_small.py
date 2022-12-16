@@ -255,63 +255,10 @@ with DAG(
         volume_mounts=[],
     )
 
-    submit_to_sia = KubernetesPodOperator(
-        task_id='submit_to_sia',
-        namespace=AKS_NAMESPACE,
-        image=SUBMIT_TO_SIA_IMAGE,
-        env_vars=get_generic_vars(),
-        cmds=["python"],
-        arguments=["/app/submit_to_sia.py",
-                   "--date", DATE],
-        labels=DAG_LABEL,
-        name=DAG_ID,
-        image_pull_policy="Always",
-        get_logs=True,
-        in_cluster=True,  # if true uses our service account token as aviable in Airflow on K8
-        is_delete_operator_pod=True,  # if true delete pod when pod reaches its final state.
-        log_events_on_failure=True,  # if true log the pod’s events if a failure occurs
-        hostnetwork=True,  # If True enable host networking on the pod. Beware, this value must be
-        # set to true if you want to make use of the pod-identity facilities like managed identity.
-        reattach_on_restart=True,
-        dag=dag,
-        startup_timeout_seconds=3600,
-        execution_timeout=timedelta(hours=4),
-        node_selector={"nodetype": AKS_NODE_POOL},
-        volumes=[],
-        volume_mounts=[],
-    )
-
-    remove_all_blobs = KubernetesPodOperator(
-        task_id='remove_all_blobs',
-        namespace=AKS_NAMESPACE,
-        image=DELETE_BLOBS_IMAGE,
-        env_vars=get_generic_vars(),
-        cmds=["python"],
-        arguments=["/app/delete_blobs.py",
-                   "--date", DATE,
-                   "--stage", "after_pipeline"],
-        labels=DAG_LABEL,
-        name=DAG_ID,
-        image_pull_policy="Always",
-        get_logs=True,
-        in_cluster=True,
-        is_delete_operator_pod=True,
-        log_events_on_failure=True,
-        hostnetwork=True,
-        reattach_on_restart=True,
-        dag=dag,
-        startup_timeout_seconds=3600,
-        execution_timeout=timedelta(hours=4),
-        node_selector={"nodetype": AKS_NODE_POOL},
-        volumes=[],
-        volume_mounts=[],
-    )
-
 # FLOW
 
     flow = retrieve_images >> [blur_images, store_images_metadata] >> remove_unblurred_images >> \
-           detect_containers >> postprocessing >> \
-           submit_to_sia >> remove_all_blobs
+           detect_containers >> postprocessing
 
 
 
