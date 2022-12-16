@@ -72,10 +72,13 @@ def remove_unblurred_images(**context):
     - stored the metadata in the postgres database
     """
     date_ = context["dag_run"].conf["date"]  # retrieve date again since it works differently with python operator
+    start_date = datetime.strptime(date_, "%Y-%m-%d %H:%M:%S.%f")
+    my_format = "%Y-%m-%d_%H-%M-%S"
+    start_date_dag = start_date.strftime(my_format)
     blob_list = blob_service_client.get_container_client(container="unblurred").list_blobs()
     counter = 0
     for blob in blob_list:
-        if blob.name.split("/")[0] == date_:  # only delete images from one date
+        if blob.name.split("/")[0] == start_date_dag:  # only delete images from one date
             todelete_blob_client = blob_service_client.get_blob_client(container="unblurred", blob=blob.name)
             todelete_blob_client.delete_blob()
             counter = counter + 1
