@@ -13,14 +13,11 @@ from azure.storage.blob import BlobServiceClient
 from azure.identity import ManagedIdentityCredential
 
 from environment import (
-
     BLOB_URL,
     BLUR_CONTAINER_IMAGE,
-    DELETE_BLOBS_IMAGE,
     DETECT_CONTAINER_IMAGE,
     POSTPROCESSING_CONTAINER_IMAGE,
     RETRIEVAL_CONTAINER_IMAGE,
-    SUBMIT_TO_SIA_IMAGE,
     UPLOAD_TO_POSTGRES_CONTAINER_IMAGE,
 )
 
@@ -28,7 +25,7 @@ from environment import (
 DATE = '{{dag_run.conf["date"]}}'  # set in config when triggering DAG
 
 # Command that you want to run on container start
-DAG_ID: Final = "cvt-pipeline-small"
+DAG_ID: Final = "pipeline-small"
 DATATEAM_OWNER: Final = "cvision2"
 DAG_LABEL: Final = {"team_name": DATATEAM_OWNER}
 AKS_NAMESPACE: Final = os.getenv("AIRFLOW__KUBERNETES__NAMESPACE")
