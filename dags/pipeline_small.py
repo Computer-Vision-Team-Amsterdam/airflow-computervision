@@ -1,5 +1,5 @@
 import os
-from datetime import timedelta
+from datetime import timedelta, datetime
 from typing import Final
 from airflow.utils.dates import days_ago
 
@@ -28,7 +28,7 @@ from environment import (
 DATE = '{{dag_run.conf["date"]}}'  # set in config when triggering DAG
 
 # Command that you want to run on container start
-DAG_ID: Final = "cvt-pipeline-v2"
+DAG_ID: Final = "cvt-pipeline-small"
 DATATEAM_OWNER: Final = "cvision2"
 DAG_LABEL: Final = {"team_name": DATATEAM_OWNER}
 AKS_NAMESPACE: Final = os.getenv("AIRFLOW__KUBERNETES__NAMESPACE")
@@ -208,64 +208,10 @@ with DAG(
         image=DETECT_CONTAINER_IMAGE,
         env_vars=get_generic_vars(),
         cmds=["python"],
-        arguments=["/app/inference.py",
-                   "--subset", DATE,
-                   "--device", "cpu",
-                   "--data_folder", "blurred",
-                   "--weights", "model_final.pth",
-                   "--output_path", "outputs"],
-        labels=DAG_LABEL,
-        name=DAG_ID,
-        image_pull_policy="Always",
-        get_logs=True,
-        in_cluster=True,
-        is_delete_operator_pod=True,
-        log_events_on_failure=True,
-        hostnetwork=True,
-        reattach_on_restart=True,
-        dag=dag,
-        startup_timeout_seconds=3600,
-        execution_timeout=timedelta(hours=4),
-        node_selector={"nodetype": AKS_NODE_POOL},
-        volumes=[],
-        volume_mounts=[],
-    )
-
-    remove_no_container_images = KubernetesPodOperator(
-        task_id='remove_no_container_images',
-        namespace=AKS_NAMESPACE,
-        image=DELETE_BLOBS_IMAGE,
-        env_vars=get_generic_vars(),
-        cmds=["python"],
-        arguments=["/app/delete_blobs.py",
+        arguments=["/app/inference_batch.py",
                    "--date", DATE,
-                   "--stage", "after_container_detections"],
-        labels=DAG_LABEL,
-        name=DAG_ID,
-        image_pull_policy="Always",
-        get_logs=True,
-        in_cluster=True,
-        is_delete_operator_pod=True,
-        log_events_on_failure=True,
-        hostnetwork=True,
-        reattach_on_restart=True,
-        dag=dag,
-        startup_timeout_seconds=3600,
-        execution_timeout=timedelta(hours=4),
-        node_selector={"nodetype": AKS_NODE_POOL},
-        volumes=[],
-        volume_mounts=[],
-    )
-
-    store_detections = KubernetesPodOperator(
-        task_id='store_detections',
-        namespace=AKS_NAMESPACE,
-        image=UPLOAD_TO_POSTGRES_CONTAINER_IMAGE,
-        env_vars=get_generic_vars(),
-        cmds=["python"],
-        arguments=["/opt/upload_to_postgres.py",
-                   "--table", "detections",
-                   "--date", DATE],
+                   "--device", "cpu",
+                   "--weights", "model_final.pth"],
         labels=DAG_LABEL,
         name=DAG_ID,
         image_pull_policy="Always",
@@ -309,63 +255,10 @@ with DAG(
         volume_mounts=[],
     )
 
-    submit_to_sia = KubernetesPodOperator(
-        task_id='submit_to_sia',
-        namespace=AKS_NAMESPACE,
-        image=SUBMIT_TO_SIA_IMAGE,
-        env_vars=get_generic_vars(),
-        cmds=["python"],
-        arguments=["/app/submit_to_sia.py",
-                   "--date", DATE],
-        labels=DAG_LABEL,
-        name=DAG_ID,
-        image_pull_policy="Always",
-        get_logs=True,
-        in_cluster=True,  # if true uses our service account token as aviable in Airflow on K8
-        is_delete_operator_pod=True,  # if true delete pod when pod reaches its final state.
-        log_events_on_failure=True,  # if true log the pod’s events if a failure occurs
-        hostnetwork=True,  # If True enable host networking on the pod. Beware, this value must be
-        # set to true if you want to make use of the pod-identity facilities like managed identity.
-        reattach_on_restart=True,
-        dag=dag,
-        startup_timeout_seconds=3600,
-        execution_timeout=timedelta(hours=4),
-        node_selector={"nodetype": AKS_NODE_POOL},
-        volumes=[],
-        volume_mounts=[],
-    )
-
-    remove_all_blobs = KubernetesPodOperator(
-        task_id='remove_all_blobs',
-        namespace=AKS_NAMESPACE,
-        image=DELETE_BLOBS_IMAGE,
-        env_vars=get_generic_vars(),
-        cmds=["python"],
-        arguments=["/app/delete_blobs.py",
-                   "--date", DATE,
-                   "--stage", "after_pipeline"],
-        labels=DAG_LABEL,
-        name=DAG_ID,
-        image_pull_policy="Always",
-        get_logs=True,
-        in_cluster=True,
-        is_delete_operator_pod=True,
-        log_events_on_failure=True,
-        hostnetwork=True,
-        reattach_on_restart=True,
-        dag=dag,
-        startup_timeout_seconds=3600,
-        execution_timeout=timedelta(hours=4),
-        node_selector={"nodetype": AKS_NODE_POOL},
-        volumes=[],
-        volume_mounts=[],
-    )
-
 # FLOW
 
     flow = retrieve_images >> [blur_images, store_images_metadata] >> remove_unblurred_images >> \
-           detect_containers  >> store_detections >> remove_no_container_images >> postprocessing >> \
-           submit_to_sia >> remove_all_blobs
+           detect_containers >> postprocessing
 
 
 
