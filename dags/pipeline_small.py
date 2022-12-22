@@ -102,17 +102,12 @@ with DAG(
 ) as dag:
     @task
     def get_config(**context):
-        workers = context['dag_run'].conf.get('workers')
-        if workers:
-            if workers.isdigit() and (0 < int(workers) < 10):
-                print(f"Processing using {workers} workers.")
-                return int(workers)
-            else:
-                print("Default to 1 worker.")
-                return 1
-        else:
-            print("Default to 1 worker.")
-            return 1
+        workers = context['dag_run'].conf.get('workers', default=None)
+        if workers and workers.isdigit() and (0 < int(workers) < 10):
+            print(f"Processing using {workers} workers.")
+            return int(workers)
+        print("Default to 1 worker.")
+        return 1
 
     num_workers = get_config()
 
@@ -158,7 +153,7 @@ with DAG(
     )
 
     blur_images_list = []
-    for worker_id in num_workers:
+    for worker_id in range(1, num_workers + 1):
         blur_images = KubernetesPodOperator(
             task_id='blur_images',
             namespace=AKS_NAMESPACE,
@@ -167,7 +162,8 @@ with DAG(
             cmds=["python"],
             arguments=["/app/detect.py",
                        "--date", DATE,
-                       "--worker-id", worker_id],
+                       "--worker-id", worker_id,
+                       "--num-workers", num_workers],
             labels=DAG_LABEL,
             name=DAG_ID,
             image_pull_policy="Always",
@@ -220,7 +216,7 @@ with DAG(
     )
 
     detect_containers_list = []
-    for worker_id in num_workers:
+    for worker_id in range(1, num_workers + 1):
         detect_containers = KubernetesPodOperator(
             task_id='detect_containers',
             namespace=AKS_NAMESPACE,
@@ -231,7 +227,8 @@ with DAG(
                        "--date", DATE,
                        "--device", "cpu",
                        "--weights", "model_final.pth",
-                       "--worker-id", worker_id],
+                       "--worker-id", worker_id,
+                       "--num-workers", num_workers],
             labels=DAG_LABEL,
             name=DAG_ID,
             image_pull_policy="Always",
