@@ -41,10 +41,11 @@ with DAG(
     collect = BashOperator(task_id="collect", bash_command="echo Collecting multiprocessing results")
     end = BashOperator(task_id="end", bash_command="echo Ending DAG")
 
-    for i in range(WORKER_COUNT):
-        start >> PythonOperator(task_id=f"multiprocessing_blur_{i}", python_callable=process_task) >> collect
+    blur_tasks = [
+        PythonOperator(task_id=f"multiprocessing_blur_{i}", python_callable=process_task) for i in range(WORKER_COUNT)]
 
     with TaskGroup("multiprocessing_detection") as multiprocessing_detection:
         for i in range(WORKER_COUNT):
             PythonOperator(task_id=f"multiprocessing_detection_{i}", python_callable=process_task)
-    collect >> multiprocessing_detection >> end
+
+    start >> blur_tasks  >> collect >> multiprocessing_detection >> end
