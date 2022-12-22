@@ -8,7 +8,7 @@ from airflow import DAG
 from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 from airflow.utils.dates import days_ago
-# from airflow.utils.task_group import TaskGroup
+from airflow.utils.task_group import TaskGroup
 
 
 WORKER_COUNT = 5
@@ -38,8 +38,13 @@ with DAG(
         catchup=False,
 ) as dag:
     start = BashOperator(task_id="start", bash_command="echo Starting DAG")
+    collect = BashOperator(task_id="collect", bash_command="echo Collecting multiprocessing results")
     end = BashOperator(task_id="end", bash_command="echo Ending DAG")
 
-    # with TaskGroup("multiprocessing_blur") as multiprocessing_blur:
     for i in range(WORKER_COUNT):
-        start >> PythonOperator(task_id=f"multiprocessing_blur_{i}", python_callable=process_task) >> end
+        start >> PythonOperator(task_id=f"multiprocessing_blur_{i}", python_callable=process_task) >> collect
+
+    with TaskGroup("multiprocessing_detection") as multiprocessing_detection:
+        for i in range(WORKER_COUNT):
+            PythonOperator(task_id=f"multiprocessing_detection_{i}", python_callable=process_task)
+    collect >> multiprocessing_detection >> end
