@@ -23,7 +23,7 @@ from environment import (
 
 # [registry]/[imagename]:[tag]
 DATE = '{{dag_run.conf["date"]}}'  # set in config when triggering DAG
-NUM_WORKERS = "2"  # TODO don't hardcode this
+NUM_WORKERS = 2  # TODO don't hardcode this
 
 # Command that you want to run on container start
 DAG_ID: Final = "cvt-pipeline-small_multiprocessing"
@@ -110,7 +110,7 @@ with DAG(
         cmds=["python"],
         arguments=["/opt/retrieve_images.py",
                    "--date", DATE,
-                   "--num-workers", NUM_WORKERS],
+                   "--num-workers", str(NUM_WORKERS)],
         labels=DAG_LABEL,
         name=DAG_ID,
         # Determines when to pull a fresh image, if 'IfNotPresent' will cause
@@ -151,8 +151,8 @@ with DAG(
            cmds=["python"],
            arguments=["/app/detect.py",
                       "--date", DATE,
-                      "--worker-id", worker_id,
-                      "--num-workers", NUM_WORKERS],
+                      "--worker-id", str(worker_id),
+                      "--num-workers", str(NUM_WORKERS)],
            labels=DAG_LABEL,
            name=DAG_ID,
            image_pull_policy="Always",
@@ -215,8 +215,8 @@ with DAG(
                        "--date", DATE,
                        "--device", "cpu",
                        "--weights", "model_final.pth",
-                       "--worker-id", worker_id,
-                       "--num-workers", NUM_WORKERS],
+                       "--worker-id", str(worker_id),
+                       "--num-workers", str(NUM_WORKERS)],
             labels=DAG_LABEL,
             name=DAG_ID,
             image_pull_policy="Always",
