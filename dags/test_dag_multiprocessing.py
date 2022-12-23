@@ -40,9 +40,9 @@ with DAG(
     @task
     def get_config(**context):
         workers = context['dag_run'].conf.get('workers', default=None)
-        if workers and workers.isdigit() and (0 < int(workers) < 10):
-            print(f"Processing using {workers} workers.")
-            return int(workers)
+        print(workers)
+        print(int(workers))
+        print(workers.isdigit())
         print("Default to 1 worker.")
         return 1
 
