@@ -23,9 +23,10 @@ from environment import (
 
 # [registry]/[imagename]:[tag]
 DATE = '{{dag_run.conf["date"]}}'  # set in config when triggering DAG
+NUM_WORKERS = 2  # TODO don't hardcode this
 
 # Command that you want to run on container start
-DAG_ID: Final = "cvt-pipeline-small"
+DAG_ID: Final = "cvt-pipeline-small_multiprocessing"
 DATATEAM_OWNER: Final = "cvision2"
 DAG_LABEL: Final = {"team_name": DATATEAM_OWNER}
 AKS_NAMESPACE: Final = os.getenv("AIRFLOW__KUBERNETES__NAMESPACE")
@@ -99,7 +100,6 @@ with DAG(
         template_searchpath=["/"],
         catchup=False,
 ) as dag:
-
     retrieve_images = KubernetesPodOperator(
         task_id='retrieve_images',
         namespace=AKS_NAMESPACE,
@@ -141,30 +141,34 @@ with DAG(
         volume_mounts=[],
     )
 
-    blur_images = KubernetesPodOperator(
-        task_id='blur_images',
-        namespace=AKS_NAMESPACE,
-        image=BLUR_CONTAINER_IMAGE,
-        env_vars=get_generic_vars(),
-        cmds=["python"],
-        arguments=["/app/detect.py",
-                   "--date", DATE],
-        labels=DAG_LABEL,
-        name=DAG_ID,
-        image_pull_policy="Always",
-        get_logs=True,
-        in_cluster=True,
-        is_delete_operator_pod=True,
-        log_events_on_failure=True,
-        hostnetwork=True,
-        reattach_on_restart=True,
-        dag=dag,
-        startup_timeout_seconds=3600,
-        execution_timeout=timedelta(hours=4),
-        node_selector={"nodetype": AKS_NODE_POOL},
-        volumes=[],
-        volume_mounts=[],
-    )
+    blur_tasks = [
+       KubernetesPodOperator(
+           task_id=f"multiprocessing_blur_{worker_id}",
+           namespace=AKS_NAMESPACE,
+           image=BLUR_CONTAINER_IMAGE,
+           env_vars=get_generic_vars(),
+           cmds=["python"],
+           arguments=["/app/detect.py",
+                      "--date", DATE,
+                      "--worker-id", worker_id,
+                      "--num-workers", NUM_WORKERS],
+           labels=DAG_LABEL,
+           name=DAG_ID,
+           image_pull_policy="Always",
+           get_logs=True,
+           in_cluster=True,
+           is_delete_operator_pod=True,
+           log_events_on_failure=True,
+           hostnetwork=True,
+           reattach_on_restart=True,
+           dag=dag,
+           startup_timeout_seconds=3600,
+           execution_timeout=timedelta(hours=4),
+           node_selector={"nodetype": AKS_NODE_POOL},
+           volumes=[],
+           volume_mounts=[],
+       )
+        for worker_id in range(1, NUM_WORKERS+1)]
 
     remove_unblurred_images = PythonOperator(
         task_id='remove_unblurred_images',
@@ -199,32 +203,36 @@ with DAG(
         volume_mounts=[],
     )
 
-    detect_containers = KubernetesPodOperator(
-        task_id='detect_containers',
-        namespace=AKS_NAMESPACE,
-        image=DETECT_CONTAINER_IMAGE,
-        env_vars=get_generic_vars(),
-        cmds=["python"],
-        arguments=["/app/inference_batch.py",
-                   "--date", DATE,
-                   "--device", "cpu",
-                   "--weights", "model_final.pth"],
-        labels=DAG_LABEL,
-        name=DAG_ID,
-        image_pull_policy="Always",
-        get_logs=True,
-        in_cluster=True,
-        is_delete_operator_pod=True,
-        log_events_on_failure=True,
-        hostnetwork=True,
-        reattach_on_restart=True,
-        dag=dag,
-        startup_timeout_seconds=3600,
-        execution_timeout=timedelta(hours=4),
-        node_selector={"nodetype": AKS_NODE_POOL},
-        volumes=[],
-        volume_mounts=[],
-    )
+    detect_containers_tasks = [
+        KubernetesPodOperator(
+            task_id=f'multiprocessing_detect_containers_{worker_id}',
+            namespace=AKS_NAMESPACE,
+            image=DETECT_CONTAINER_IMAGE,
+            env_vars=get_generic_vars(),
+            cmds=["python"],
+            arguments=["/app/inference_batch.py",
+                       "--date", DATE,
+                       "--device", "cpu",
+                       "--weights", "model_final.pth",
+                       "--worker-id", worker_id,
+                       "--num-workers", NUM_WORKERS],
+            labels=DAG_LABEL,
+            name=DAG_ID,
+            image_pull_policy="Always",
+            get_logs=True,
+            in_cluster=True,
+            is_delete_operator_pod=True,
+            log_events_on_failure=True,
+            hostnetwork=True,
+            reattach_on_restart=True,
+            dag=dag,
+            startup_timeout_seconds=3600,
+            execution_timeout=timedelta(hours=4),
+            node_selector={"nodetype": AKS_NODE_POOL},
+            volumes=[],
+            volume_mounts=[],
+        )
+        for worker_id in range(1, NUM_WORKERS+1)]
 
     postprocessing = KubernetesPodOperator(
         task_id='postprocessing',
@@ -252,11 +260,7 @@ with DAG(
         volume_mounts=[],
     )
 
-# FLOW
+    # FLOW
 
-    flow = retrieve_images >> [blur_images, store_images_metadata] >> remove_unblurred_images >> \
-           detect_containers >> postprocessing
-
-
-
-
+    flow = retrieve_images >> store_images_metadata >> blur_tasks >> remove_unblurred_images >> \
+           detect_containers_tasks >> postprocessing
