@@ -109,7 +109,8 @@ with DAG(
         env_vars=get_generic_vars(),
         cmds=["python"],
         arguments=["/opt/retrieve_images.py",
-                   "--date", DATE],
+                   "--date", DATE,
+                   "--num-workers", NUM_WORKERS],
         labels=DAG_LABEL,
         name=DAG_ID,
         # Determines when to pull a fresh image, if 'IfNotPresent' will cause
