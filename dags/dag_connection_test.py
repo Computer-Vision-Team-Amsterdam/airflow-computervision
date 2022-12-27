@@ -64,7 +64,7 @@ with DAG(
             image=IMAGE,
             env_vars=get_generic_vars(),
             cmds=["bash", "-rc"],
-            arguments=["telnet 46.17.24.246 22"],
+            arguments=["ip addr"],
             labels=DAG_LABEL,
             name=DAG_ID,
             image_pull_policy="Always",
