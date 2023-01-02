@@ -108,3 +108,15 @@ Even if it's one day later, we must tell the DAG that this data actually belongs
 so we **still trigger DAG 1 with the date of 2nd of January 2023**. Now, as for the precise timestamp, we can agree it 
 should be after the last available timestamp, which is `{"date":"2020-01-02 20:00:00.00"}`. Thus, we trigger 
 DAG 1 with `{"date":"2020-01-02 21:00:00.00"}`
+
+
+Now that we processed all images, it is time to trigger DAG 2. Let's assume it is now 22:00 PM on Tuesday 3rd of 
+January 2023.
+Again, same as explained before, we must tell DAG 2 that this data actually belongs to the mission from the day 
+before, so we trigger DAG 2 with the date of 2nd of January 2023. The precise timestamp can be anything, since we only
+use the date from now onwards. (We assume we only trigger DAG 2 once). Thus, we trigger DAG 2 with 
+`{"date":"2020-01-02 21:00:00.00"}`.
+
+The same holds for DAG 3. Again, we trigger it with the date of 2nd of January. Again, the
+timestamp is irrelevant, we only care about the date. Thus, we trigger DAG 2 with 
+`{"date":"2020-01-02 21:00:00.00"}`.
