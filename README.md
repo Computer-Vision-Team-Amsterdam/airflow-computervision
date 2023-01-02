@@ -45,8 +45,8 @@ Each DAG is triggered manually from airflow. When we trigger one pipeline we tri
 In the configuration JSON, fill in the date argument in the `%Y-%m-%d %H:%M:%S.%f` format, as shown below.
 
 Lastly, press the `Trigger` button.
+
 <img src="docs/images/trigger-pipeline-2.png" width="800">
----
 
 ## Where we store results
 While the DAGs are running, the data (images, json files, csv files) are being created in different containers
