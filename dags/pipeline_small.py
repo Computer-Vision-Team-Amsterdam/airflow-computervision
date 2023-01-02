@@ -13,14 +13,11 @@ from azure.storage.blob import BlobServiceClient
 from azure.identity import ManagedIdentityCredential
 
 from environment import (
-
     BLOB_URL,
     BLUR_CONTAINER_IMAGE,
-    DELETE_BLOBS_IMAGE,
     DETECT_CONTAINER_IMAGE,
     POSTPROCESSING_CONTAINER_IMAGE,
     RETRIEVAL_CONTAINER_IMAGE,
-    SUBMIT_TO_SIA_IMAGE,
     UPLOAD_TO_POSTGRES_CONTAINER_IMAGE,
 )
 
