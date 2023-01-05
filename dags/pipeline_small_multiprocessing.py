@@ -2,6 +2,7 @@ import os
 from datetime import timedelta, datetime
 from typing import Final
 
+from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
     KubernetesPodOperator,
@@ -10,7 +11,6 @@ from airflow.utils.dates import days_ago
 from azure.identity import ManagedIdentityCredential
 from azure.storage.blob import BlobServiceClient
 
-from airflow import DAG
 from dags.slack.slack import (
     on_failure_callback,
     on_retry_callback,
