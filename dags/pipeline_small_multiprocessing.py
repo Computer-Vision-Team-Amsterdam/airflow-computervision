@@ -1,22 +1,26 @@
 import os
 from datetime import timedelta, datetime
 from typing import Final
-from airflow.utils.dates import days_ago
 
-from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
     KubernetesPodOperator,
 )
-
-from azure.storage.blob import BlobServiceClient
+from airflow.utils.dates import days_ago
 from azure.identity import ManagedIdentityCredential
+from azure.storage.blob import BlobServiceClient
 
+from airflow import DAG
+from dags.slack.slack import (
+    get_prefab_slack_api_post_operator,
+    on_failure_callback,
+    on_retry_callback,
+    on_success_callback,
+)
 from environment import (
     BLOB_URL,
     BLUR_CONTAINER_IMAGE,
     DETECT_CONTAINER_IMAGE,
-    POSTPROCESSING_CONTAINER_IMAGE,
     RETRIEVAL_CONTAINER_IMAGE,
     UPLOAD_TO_POSTGRES_CONTAINER_IMAGE,
 )
@@ -84,6 +88,12 @@ def remove_unblurred_images(**context):
     print(f"Successfully deleted {counter} files!")
 
 
+def count_blobs_in_container(container: str) -> int:
+    # Blob storage API does not support querying blob count
+    blob_list = blob_service_client.get_container_client(container=container).list_blobs()
+    return len([x for x in blob_list])
+
+
 with DAG(
         DAG_ID,
         description="test-dag",
@@ -95,8 +105,11 @@ with DAG(
             'retries': 0,
             'retry_delay': timedelta(minutes=5),
             'start_date': days_ago(1),
-            'schedule_interval': None,
         },
+        on_failure_callback=on_failure_callback,
+        on_retry_callback=on_retry_callback,
+        on_success_callback=on_success_callback,
+        schedule_interval=None,
         template_searchpath=["/"],
         catchup=False,
 ) as dag:
@@ -142,6 +155,14 @@ with DAG(
         volume_mounts=[],
     )
 
+    count_downloaded_images = PythonOperator(
+        task_id="count_downloaded_images",
+        python_callable=count_blobs_in_container,
+        op_kwargs={"container": "unblurred"},
+        provide_context=True,
+        dag=dag
+    )
+
     blur_tasks = [
        KubernetesPodOperator(
            task_id=f"multiprocessing_blur_{worker_id}",
@@ -171,9 +192,25 @@ with DAG(
        )
         for worker_id in range(1, NUM_WORKERS+1)]
 
+    count_blurred_images = PythonOperator(
+        task_id="count_blurred_images",
+        python_callable=count_blobs_in_container,
+        op_kwargs={"container": "blurred"},
+        provide_context=True,
+        dag=dag
+    )
+
     remove_unblurred_images = PythonOperator(
         task_id='remove_unblurred_images',
         python_callable=remove_unblurred_images,
+        provide_context=True,
+        dag=dag
+    )
+
+    count_blurred_images_removed = PythonOperator(
+        task_id="count_blurred_images_removed",
+        python_callable=count_blobs_in_container,
+        op_kwargs={"container": "blurred"},
         provide_context=True,
         dag=dag
     )
@@ -235,7 +272,17 @@ with DAG(
         )
         for worker_id in range(1, NUM_WORKERS+1)]
 
+    send_slack_message = get_prefab_slack_api_post_operator()
+    send_slack_message.text = f"""
+        *Images downloaded from CloudVPS*: {{{{ ti.xcom_pull(task_ids='count_downloaded_images') }}}}
+        *Images blurred*: {{{{ ti.xcom_pull(task_ids='count_blurred_images') }}}}
+        *Images blurred remaining after removal*: {{{{ ti.xcom_pull(task_ids='count_blurred_images_removed') }}}}
+
+        {send_slack_message.text}
+    """
+
     # FLOW
 
-    flow = retrieve_images >> store_images_metadata >> blur_tasks >> remove_unblurred_images >> \
-           detect_containers_tasks
+    flow = retrieve_images >> count_downloaded_images >> store_images_metadata >> blur_tasks >> \
+           count_blurred_images >> remove_unblurred_images >> count_blurred_images_removed >> \
+           detect_containers_tasks >> send_slack_message
