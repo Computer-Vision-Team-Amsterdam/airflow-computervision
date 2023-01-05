@@ -1,6 +1,7 @@
 # Airflow-computervision
 This is the airflow repository of the computer vision team.
 This repository contains the pipelines that are used in our container project.
+Some more notes about docker and kubernetes can be found in our [wiki](https://cvteamamsterdam.atlassian.net/wiki/spaces/CVT/pages/24248321/Technical+documentation+of+the+project+illegal+containers+in+Amsterdam).
 
 We created the pipelines in this repository based on the below image in the [CVT Drafts Miro board](https://miro.com/app/board/uXjVOVQfTW4=/?share_link_id=412250854483).
 
