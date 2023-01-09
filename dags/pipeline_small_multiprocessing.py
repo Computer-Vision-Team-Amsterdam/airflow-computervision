@@ -107,7 +107,6 @@ with DAG(
             'start_date': days_ago(1),
         },
         on_failure_callback=on_failure_callback,
-        on_retry_callback=on_retry_callback,
         on_success_callback=on_success_callback,
         schedule_interval=None,
         template_searchpath=["/"],
