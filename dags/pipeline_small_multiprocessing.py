@@ -11,7 +11,7 @@ from airflow.utils.dates import days_ago
 from azure.identity import ManagedIdentityCredential
 from azure.storage.blob import BlobServiceClient
 
-from slack import (
+from slack_hooks.slack import (
     on_failure_callback,
     on_retry_callback,
     on_success_callback,
