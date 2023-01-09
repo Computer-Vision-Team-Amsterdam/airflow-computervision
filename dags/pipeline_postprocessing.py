@@ -67,8 +67,8 @@ with DAG(
             'retries': 0,
             'retry_delay': timedelta(minutes=5),
             'start_date': days_ago(1),
-            'schedule_interval': None,
         },
+        schedule_interval=None,
         template_searchpath=["/"],
         catchup=False,
 ) as dag:
