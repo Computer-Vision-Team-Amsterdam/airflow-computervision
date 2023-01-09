@@ -1,6 +1,7 @@
 import os
 from datetime import timedelta, datetime
 from typing import Final
+from common import OTAP_ENVIRONMENT
 
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
@@ -13,7 +14,6 @@ from azure.storage.blob import BlobServiceClient
 
 from slack_hooks.slack import (
     on_failure_callback,
-    on_retry_callback,
     on_success_callback,
     get_prefab_slack_api_post_operator,
 )
@@ -26,8 +26,12 @@ from environment import (
 )
 
 # [registry]/[imagename]:[tag]
-DATE = '{{dag_run.conf["date"]}}'  # set in config when triggering DAG
-NUM_WORKERS = 2  # TODO don't hardcode this
+if OTAP_ENVIRONMENT.lower().endswith("ont"):
+    DATE = '{{dag_run.conf["date"]}}'  # set in config when triggering DAG
+    NUM_WORKERS = 2
+else:
+    DATE = '{{dag_run.start_date}}'
+    NUM_WORKERS = 8
 
 # Command that you want to run on container start
 DAG_ID: Final = "cvt-pipeline-small_multiprocessing"
