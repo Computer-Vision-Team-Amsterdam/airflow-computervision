@@ -13,7 +13,6 @@ from azure.storage.blob import BlobServiceClient
 
 from slack_hooks.slack import (
     on_failure_callback,
-    on_retry_callback,
     on_success_callback,
     get_prefab_slack_api_post_operator,
 )
@@ -108,7 +107,7 @@ with DAG(
         },
         on_failure_callback=on_failure_callback,
         on_success_callback=on_success_callback,
-        schedule_interval=None,
+        schedule_interval="0 11-17/2 * * *",  # At minute 0 past every 2nd hour from 11 through 17
         template_searchpath=["/"],
         catchup=False,
 ) as dag:
