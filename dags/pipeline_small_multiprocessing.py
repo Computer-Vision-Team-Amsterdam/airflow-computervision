@@ -30,7 +30,7 @@ if OTAP_ENVIRONMENT.lower().endswith("ont"):
     DATE = '{{dag_run.conf["date"]}}'  # set in config when triggering DAG
     NUM_WORKERS = 2
 else:
-    DATE = '{{dag_run.start_date}}'  # set in config when triggering DAG
+    DATE = '{{dag_run.start_date}}'
     NUM_WORKERS = 8
 
 # Command that you want to run on container start
