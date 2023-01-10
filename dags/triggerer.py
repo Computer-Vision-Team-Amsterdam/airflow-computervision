@@ -15,12 +15,13 @@ default_args = {
 
 def trigger_generator(**ctx):
     n_runs = 4
+    my_format = "%Y-%m-%d_%H-%M-%S"
     first_run = datetime.combine(
         date=datetime.strptime(ctx["dag_run"].conf["date"], "%Y-%m-%d"),
         time=time(hour=21),
     )
     trigger_times = [first_run + timedelta(hours=x * 2) for x in range(n_runs)]
-    arguments = [first_run + timedelta(minutes=x) for x in range(n_runs)]
+    arguments = [(first_run + timedelta(minutes=x)).strftime(my_format) for x in range(n_runs)]
     return arguments
 
 
