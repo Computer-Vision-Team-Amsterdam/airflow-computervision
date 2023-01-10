@@ -21,7 +21,7 @@ def trigger_generator(**ctx):
     )
     trigger_times = [first_run + timedelta(hours=x * 2) for x in range(n_runs)]
     arguments = [first_run + timedelta(minutes=x) for x in range(n_runs)]
-    return zip(trigger_times, arguments)
+    return list(zip(trigger_times, arguments))
 
 
 with DAG(
