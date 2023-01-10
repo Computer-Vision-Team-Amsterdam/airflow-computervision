@@ -17,7 +17,7 @@ with DAG(
     'dependent',
     start_date=datetime(2023, 1, 9),
     max_active_runs=1,
-    schedule_interval='@daily',
+    schedule_interval=None,
     default_args=default_args,
     catchup=False,
 ) as dag:
