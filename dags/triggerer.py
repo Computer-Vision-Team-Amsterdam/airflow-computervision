@@ -38,7 +38,7 @@ with DAG(
             trigger_dag_id="dependent",
             wait_for_completion=False,
             execution_date=f"{{{{ data_interval_start.add(hours={x} * 2) }}}}",
-            conf={"date": f"{{{{ dag_run.conf['date'] ~ ' 21:{x}0:00' }}}}"},
+            conf={"date": f"{{{{ ds ~ ' 21:{x}0:00' }}}}"},
         )
     for x in range(4)]
     trigs
