@@ -13,6 +13,10 @@ default_args = {
 }
 
 
+def test_func(conf):
+    print(conf)
+
+
 with DAG(
     'dependent',
     start_date=datetime(2023, 1, 9),
@@ -23,8 +27,7 @@ with DAG(
 ) as dag:
     task = PythonOperator(
         task_id='task',
-        python_callable=lambda x: print(x),
-        op_kwargs={'task_type': 'starting'},
+        python_callable=test_func,
     )
 
     task
