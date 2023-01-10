@@ -1,4 +1,4 @@
-from airflow import DAG, XComArg
+from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from datetime import datetime, timedelta, time
@@ -15,14 +15,13 @@ default_args = {
 
 def trigger_generator(**ctx):
     n_runs = 4
-    my_format = "%Y-%m-%d_%H-%M-%S"
     first_run = datetime.combine(
         date=datetime.strptime(ctx["dag_run"].conf["date"], "%Y-%m-%d"),
         time=time(hour=21),
     )
     trigger_times = [first_run + timedelta(hours=x * 2) for x in range(n_runs)]
-    arguments = [(first_run + timedelta(minutes=x)).strftime(my_format) for x in range(n_runs)]
-    return arguments
+    arguments = [first_run + timedelta(minutes=x) for x in range(n_runs)]
+    return zip(trigger_times, arguments)
 
 
 with DAG(
@@ -33,18 +32,10 @@ with DAG(
     default_args=default_args,
     catchup=False
 ) as dag:
-    triggers = PythonOperator(
-        task_id='generate-triggers',
-        python_callable=trigger_generator,
-        provide_context=True,
-    )
-
-    ops = TriggerDagRunOperator.partial(
+    trig = TriggerDagRunOperator(
         task_id="trigger_dependent_dag",
         trigger_dag_id="dependent",
-        wait_for_completion=True
-    ).expand(
-        conf={"date": XComArg(triggers)},
+        wait_for_completion=True,
+        conf={"date": "{{ datetime.combine(dag_run.conf['date'], time(hour=21) }}"},
     )
-
-    ops
+    trig
