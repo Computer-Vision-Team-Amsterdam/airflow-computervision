@@ -1,7 +1,7 @@
-from airflow import DAG
+from airflow import DAG, XComArg
+from airflow.operators.python import PythonOperator
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
-from datetime import datetime, timedelta
-
+from datetime import datetime, timedelta, time
 
 # Default settings applied to all tasks
 default_args = {
@@ -13,20 +13,37 @@ default_args = {
     'retry_delay': timedelta(minutes=5)
 }
 
+def trigger_generator(**ctx):
+    n_runs = 4
+    first_run = datetime.combine(
+        date=datetime.strptime(ctx["dag_run"].conf["date"], "%Y-%m-%d"),
+        time=time(hour=21),
+    )
+    trigger_times = [first_run + timedelta(hours=x * 2) for x in range(n_runs)]
+    arguments = [first_run + timedelta(minutes=x) for x in range(n_runs)]
+    return zip(trigger_times, arguments)
+
+
 with DAG(
-    'trigger-dagrun-dag',
+    "trigger-dagrun-dag",
     start_date=datetime(2023, 1, 9),
     max_active_runs=1,
-    schedule_interval='@daily',
+    schedule_interval=None,
     default_args=default_args,
     catchup=False
 ) as dag:
-
-    trigger_dependent_dag = TriggerDagRunOperator(
-        task_id="trigger_dependent_dag",
-        trigger_dag_id="dependent",
-        conf={"date": "{{ dag_run.conf['date'] }}"},
-        wait_for_completion=True
+    triggers = PythonOperator(
+        task_id='generate-triggers',
+        python_callable=trigger_generator,
+        provide_context=True,
     )
 
-    trigger_dependent_dag
+    ops = TriggerDagRunOperator.partial(
+        task_id="trigger_dependent_dag",
+        trigger_dag_id="dependent",
+        wait_for_completion=True
+    ).expand(
+        conf={"date": XComArg(triggers)},
+    )
+
+    ops
