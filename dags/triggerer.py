@@ -25,6 +25,7 @@ with DAG(
     trigger_dependent_dag = TriggerDagRunOperator(
         task_id="trigger_dependent_dag",
         trigger_dag_id="dependent",
+        conf={"date": "{{ dag_run.conf['date'] }}"},
         wait_for_completion=True
     )
 
