@@ -28,6 +28,7 @@ with DAG(
     task = PythonOperator(
         task_id='task',
         python_callable=test_func,
+        provide_context=True,
     )
 
     task
