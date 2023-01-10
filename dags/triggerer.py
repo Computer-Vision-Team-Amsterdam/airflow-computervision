@@ -32,10 +32,12 @@ with DAG(
     default_args=default_args,
     catchup=False
 ) as dag:
-    trig = TriggerDagRunOperator(
-        task_id="trigger_dependent_dag",
-        trigger_dag_id="dependent",
-        wait_for_completion=True,
-        conf={"date": "{{ datetime.combine(dag_run.conf['date'], time(hour=21)) }}"},
-    )
-    trig
+    trigs = [
+        TriggerDagRunOperator(
+            task_id="trigger_dependent_dag",
+            trigger_dag_id="dependent",
+            wait_for_completion=True,
+            conf={"date": f"{{{{ dag_run.conf['date'] 21:{x}:00 }}}}"},
+        )
+    for x in range(4)]
+    trigs
