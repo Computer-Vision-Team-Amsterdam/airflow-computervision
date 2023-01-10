@@ -36,6 +36,6 @@ with DAG(
         task_id="trigger_dependent_dag",
         trigger_dag_id="dependent",
         wait_for_completion=True,
-        conf={"date": "{{ datetime.combine(dag_run.conf['date'], time(hour=21) }}"},
+        conf={"date": "{{ datetime.combine(dag_run.conf['date'], time(hour=21)) }}"},
     )
     trig
