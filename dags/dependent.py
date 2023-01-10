@@ -13,8 +13,8 @@ default_args = {
 }
 
 
-def test_func(conf):
-    print(conf)
+def test_func(**context):
+    print(context["dag_run"].conf["date"])
 
 
 with DAG(
