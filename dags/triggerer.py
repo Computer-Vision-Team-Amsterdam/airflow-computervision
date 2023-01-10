@@ -34,7 +34,7 @@ with DAG(
 ) as dag:
     trigs = [
         TriggerDagRunOperator(
-            task_id="trigger_dependent_dag",
+            task_id=f"trigger_dependent_dag_{x}",
             trigger_dag_id="dependent",
             wait_for_completion=True,
             conf={"date": f"{{{{ dag_run.conf['date'] 21:{x}:00 }}}}"},
