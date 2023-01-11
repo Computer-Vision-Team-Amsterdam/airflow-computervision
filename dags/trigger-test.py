@@ -58,12 +58,12 @@ with DAG(
         "trigger-test",
         start_date=datetime(2023, 1, 10),
         max_active_runs=1,
-        schedule_interval="0 11 * * *",
+        schedule_interval="3 11 * * *",
         default_args=default_args,
         catchup=False
 ) as dag:
     task = PythonOperator(
         task_id='task',
-        python_callable=lambda _: print("piep"),
+        python_callable=lambda: print("piep"),
         provide_context=True,
     )
