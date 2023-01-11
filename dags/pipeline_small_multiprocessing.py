@@ -111,7 +111,7 @@ with DAG(
         "trigger-multiprocessing-small",
         start_date=datetime(2023, 1, 10),
         max_active_runs=1,
-        schedule_interval="0 21 * * 3",  # Every Wednesday at 21:00 CEST
+        schedule_interval="0 21 * * 3",  # Every Wednesday at 21:00 CE(S)T
         default_args=default_args,
         catchup=False
 ) as dag:
