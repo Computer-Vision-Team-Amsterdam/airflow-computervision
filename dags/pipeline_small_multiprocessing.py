@@ -101,7 +101,7 @@ with DAG(
         "trigger-multiprocessing-small",
         start_date=datetime(2023, 1, 1),
         max_active_runs=1,
-        schedule_interval="45 13 * * 3",
+        schedule_interval="0 14 * * 3",
         default_args={
             'depends_on_past': False,
             'email': ['airflow@example.com'],
@@ -120,7 +120,7 @@ with DAG(
             wait_for_completion=True,
             # creates (4) DAGRuns for the triggered DAG at 2 hour intervals from (and including) the current DAG's start time
             # data_interval_end is the moment at which the DAG is scheduled to start _in UTC_, i.e., 21:00 CE(S)T, converted to UTC
-            execution_date=f"{{{{ data_interval_end.in_tz('Europe/Amsterdam').add(hours={x} * 2) }}}}",  # data_interval_end is in UTC
+            execution_date=f"{{{{ data_interval_end.in_tz('Europe/Amsterdam').add(minutes={x} * 5) }}}}",  # data_interval_end is in UTC
             conf={"date": f"{{{{ data_interval_end.in_tz('Europe/Amsterdam').to_date_string() ~ ' 21:{x}0:00' }}}}"},
         )
         for x in range(4)]
