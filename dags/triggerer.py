@@ -1,7 +1,6 @@
 from airflow import DAG
-from airflow.operators.python import PythonOperator
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
-from datetime import datetime, timedelta, time
+from datetime import datetime, timedelta
 
 # Default settings applied to all tasks
 default_args = {
@@ -12,17 +11,6 @@ default_args = {
     'retries': 1,
     'retry_delay': timedelta(minutes=5)
 }
-
-def trigger_generator(**ctx):
-    n_runs = 4
-    first_run = datetime.combine(
-        date=datetime.strptime(ctx["dag_run"].conf["date"], "%Y-%m-%d"),
-        time=time(hour=21),
-    )
-    trigger_times = [first_run + timedelta(hours=x * 2) for x in range(n_runs)]
-    arguments = [first_run + timedelta(minutes=x) for x in range(n_runs)]
-    return zip(trigger_times, arguments)
-
 
 with DAG(
     "trigger-dagrun-dag",
@@ -38,7 +26,7 @@ with DAG(
             trigger_dag_id="dependent",
             wait_for_completion=True,
             execution_date=f"{{{{ data_interval_end.add(hours={x} * 2) }}}}",
-            conf={"date": f"{{{{ ds ~ ' 21:{x}0:00' }}}}"},
+            conf={"date": f"{{{{ data_interval_end.to_date_string() ~ ' 21:{x}0:00' }}}}"},
         )
     for x in range(4)]
     trigs
