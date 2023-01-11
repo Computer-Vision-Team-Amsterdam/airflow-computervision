@@ -16,7 +16,7 @@ with DAG(
     "trigger-dagrun-dag",
     start_date=datetime(2023, 1, 9),
     max_active_runs=1,
-    schedule_interval="5 * * * *",  # "0 22 * * 3",  # Every Wednesday at 22:00 UTC
+    schedule_interval="0 22 * * 3",  # Every Wednesday at 22:00 UTC
     default_args=default_args,
     catchup=False
 ) as dag:
