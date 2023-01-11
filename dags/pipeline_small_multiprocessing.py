@@ -123,7 +123,8 @@ with DAG(
             # creates (4) DAGRuns for the triggered DAG at 2 hour intervals from (and including) the current DAG's start time
             # data_interval_end is the moment at which the DAG is scheduled to start in UTC, i.e., 21:00 CET, converted to UTC
             execution_date=f"{{{{ data_interval_end.in_tz('Europe/Amsterdam').add(hours={x} * 2) }}}}",  # data_interval_end is in UTC
-            conf={"date": f"{{{{ data_interval_end.in_tz('Europe/Amsterdam').to_date_string() ~ ' 21:{x}0:00.00' }}}}"},
+            conf={"date": f"{{{{ 2022-12-31 21:{x}0:00.00 }}}}"},
+            # conf={"date": f"{{{{ data_interval_end.in_tz('Europe/Amsterdam').to_date_string() ~ ' 21:{x}0:00.00' }}}}"},
         )
         for x in range(4)]
 
