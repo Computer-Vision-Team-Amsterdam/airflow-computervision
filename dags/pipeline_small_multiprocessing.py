@@ -5,6 +5,7 @@ from common import OTAP_ENVIRONMENT
 
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
+from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
     KubernetesPodOperator,
 )
@@ -96,18 +97,39 @@ def count_blobs_in_container(container: str) -> int:
     return len([x for x in blob_list])
 
 
+default_args = {
+    'depends_on_past': False,
+    'email': ['airflow@example.com'],
+    'email_on_failure': False,
+    'email_on_retry': False,
+    'retries': 0,
+    'retry_delay': timedelta(minutes=5),
+    'start_date': days_ago(1),
+}
+
+with DAG(
+        "trigger-multiprocessing-small",
+        start_date=datetime(2023, 1, 10),
+        max_active_runs=1,
+        schedule_interval="0 21 * * 3",  # Every Wednesday at 21:00 CEST
+        default_args=default_args,
+        catchup=False
+) as dag:
+    trigs = [
+        TriggerDagRunOperator(
+            task_id=f"trigger_dependent_dag_{x}",
+            trigger_dag_id=DAG_ID,
+            wait_for_completion=True,
+            execution_date=f"{{{{ data_interval_end.in_tz('Europe/Amsterdam').add(hours={x} * 2) }}}}",  # data_interval_end is in UTC
+            conf={"date": f"{{{{ data_interval_end.to_date_string() ~ ' 21:{x}0:00' }}}}"},
+        )
+        for x in range(4)]
+    trigs
+
 with DAG(
         DAG_ID,
         description="test-dag",
-        default_args={
-            'depends_on_past': False,
-            'email': ['airflow@example.com'],
-            'email_on_failure': False,
-            'email_on_retry': False,
-            'retries': 0,
-            'retry_delay': timedelta(minutes=5),
-            'start_date': days_ago(1),
-        },
+        default_args=default_args,
         on_failure_callback=on_failure_callback,
         on_success_callback=on_success_callback,
         schedule_interval=None,
