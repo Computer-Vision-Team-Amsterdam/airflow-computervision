@@ -1,4 +1,5 @@
 from airflow import DAG
+from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from datetime import datetime, timedelta
@@ -58,12 +59,11 @@ with DAG(
         "trigger-test",
         start_date=datetime(2023, 1, 10),
         max_active_runs=1,
-        schedule_interval="7 11 * * *",
+        schedule_interval="30 11 * * *",
         default_args=default_args,
         catchup=False
 ) as dag:
-    task = PythonOperator(
+    task = BashOperator(
         task_id='task',
-        python_callable=lambda: print("### {{ data_interval_end.to_datetime_string() }}"),
-        provide_context=True,
+        bash_command="echo date interval end: {{ data_interval_end.to_datetime_string() }}",
     )
