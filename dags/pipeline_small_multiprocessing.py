@@ -99,9 +99,9 @@ def count_blobs_in_container(container: str) -> int:
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 with DAG(
         "trigger-multiprocessing-small",
-        start_date=datetime(2023, 1, 10),
+        start_date=datetime(2023, 1, 1),
         max_active_runs=1,
-        schedule_interval="40 14 * * 3",
+        schedule_interval="45 14 * * 3",
         default_args={
             'depends_on_past': False,
             'email': ['airflow@example.com'],
