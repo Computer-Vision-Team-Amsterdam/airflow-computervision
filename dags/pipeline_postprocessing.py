@@ -1,5 +1,5 @@
 import os
-from datetime import timedelta, datetime
+from datetime import timedelta
 from typing import Final
 from airflow.utils.dates import days_ago
 
@@ -8,17 +8,20 @@ from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
     KubernetesPodOperator,
 )
 
+from azure.storage.blob import BlobServiceClient
+from azure.identity import ManagedIdentityCredential
+
 from environment import (
-    DELETE_BLOBS_IMAGE,
-    SUBMIT_TO_SIA_IMAGE,
+    BLOB_URL,
+    POSTPROCESSING_CONTAINER_IMAGE,
+
 )
 
 # [registry]/[imagename]:[tag]
 DATE = '{{dag_run.conf["date"]}}'  # set in config when triggering DAG
-CONTAINER_IDS = '{{dag_run.conf["container-id-list"]}}'  # set in config when triggering DAG
 
 # Command that you want to run on container start
-DAG_ID: Final = "cvt-pipeline-submit-to-sia"
+DAG_ID: Final = "cvt-pipeline-postprocessing"
 DATATEAM_OWNER: Final = "cvision2"
 DAG_LABEL: Final = {"team_name": DATATEAM_OWNER}
 AKS_NAMESPACE: Final = os.getenv("AIRFLOW__KUBERNETES__NAMESPACE")
@@ -31,6 +34,12 @@ GENERIC_VARS_NAMES: list = [
     "AIRFLOW__SECRETS__BACKEND_KWARGS",
     "AIRFLOW_CONN_POSTGRES_DEFAULT"
 ]
+
+
+client_id = os.getenv("USER_ASSIGNED_MANAGED_IDENTITY")
+credential = ManagedIdentityCredential(client_id=client_id)
+blob_service_client = BlobServiceClient(account_url=BLOB_URL,
+                                       credential=credential)
 
 
 def get_generic_vars() -> dict[str, str]:
@@ -46,7 +55,6 @@ def get_generic_vars() -> dict[str, str]:
         variable: os.environ[variable] for variable in GENERIC_VARS_NAMES
     }
     return GENERIC_VARS_DICT
-
 
 with DAG(
         DAG_ID,
@@ -64,15 +72,14 @@ with DAG(
         template_searchpath=["/"],
         catchup=False,
 ) as dag:
-    submit_to_sia = KubernetesPodOperator(
-        task_id='submit_to_sia',
+    postprocessing = KubernetesPodOperator(
+        task_id='postprocessing',
         namespace=AKS_NAMESPACE,
-        image=SUBMIT_TO_SIA_IMAGE,
+        image=POSTPROCESSING_CONTAINER_IMAGE,
         env_vars=get_generic_vars(),
         cmds=["python"],
-        arguments=["/app/submit_to_sia.py",
-                   "--date", DATE,
-                   "--container-id-list", CONTAINER_IDS],
+        arguments=["/app/postprocessing.py",
+                   "--date", DATE],
         labels=DAG_LABEL,
         name=DAG_ID,
         image_pull_policy="Always",
@@ -91,37 +98,6 @@ with DAG(
         volume_mounts=[],
     )
 
-    remove_all_blobs = KubernetesPodOperator(
-        task_id='remove_all_blobs',
-        namespace=AKS_NAMESPACE,
-        image=DELETE_BLOBS_IMAGE,
-        env_vars=get_generic_vars(),
-        cmds=["python"],
-        arguments=["/app/delete_blobs.py",
-                   "--date", DATE,
-                   "--stage", "after_pipeline"],
-        labels=DAG_LABEL,
-        name=DAG_ID,
-        image_pull_policy="Always",
-        get_logs=True,
-        in_cluster=True,
-        is_delete_operator_pod=True,
-        log_events_on_failure=True,
-        hostnetwork=True,
-        reattach_on_restart=True,
-        dag=dag,
-        startup_timeout_seconds=3600,
-        execution_timeout=timedelta(hours=4),
-        node_selector={"nodetype": AKS_NODE_POOL},
-        volumes=[],
-        volume_mounts=[],
-    )
+    # FLOW
 
-# FLOW
-
-    flow = submit_to_sia >> remove_all_blobs
-
-
-
-
-
+    flow = postprocessing
