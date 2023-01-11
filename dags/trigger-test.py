@@ -39,7 +39,8 @@ with DAG(
     "trigger-dagrun-dag",
     start_date=datetime(2023, 1, 9),
     max_active_runs=1,
-    schedule_interval="0 22 * * 3",  # Every Wednesday at 22:00 UTC
+    schedule_interval="/5 * * * 3",  # Wednesday, every 5 mins
+    # schedule_interval="0 22 * * 3",  # Every Wednesday at 21:00 CET
     default_args=default_args,
     catchup=False
 ) as dag:
@@ -48,7 +49,7 @@ with DAG(
             task_id=f"trigger_dependent_dag_{x}",
             trigger_dag_id="dependent",
             wait_for_completion=True,
-            execution_date=f"{{{{ data_interval_end.add(hours={x} * 2) }}}}",
+            execution_date=f"{{{{ data_interval_end.in_tz('Europe/Amsterdam').add(minutes={x} * 2) }}}}",
             conf={"date": f"{{{{ data_interval_end.to_date_string() ~ ' 21:{x}0:00' }}}}"},
         )
     for x in range(4)]
