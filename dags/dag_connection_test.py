@@ -4,14 +4,17 @@ from typing import Final, Optional
 from airflow.utils.dates import days_ago
 
 from airflow import DAG
+
 from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
     KubernetesPodOperator,
 )
 
-from environment import DETECT_CONTAINER_IMAGE
+# [registry]/[imagename]:[tag]
+IMAGE: Optional[str] = 'cvtweuacrogidgmnhwma3zq.azurecr.io/check:latest'
+DATE = '{{dag_run.conf["date"]}}'  # set in config when triggering DAG
 
 # Command that you want to run on container start
-DAG_ID: Final = "debugging-detection"
+DAG_ID: Final = "test_connection"
 DATATEAM_OWNER: Final = "cvision2"
 DAG_LABEL: Final = {"team_name": DATATEAM_OWNER}
 AKS_NAMESPACE: Final = os.getenv("AIRFLOW__KUBERNETES__NAMESPACE")
@@ -23,9 +26,6 @@ GENERIC_VARS_NAMES: list = [
     "USER_ASSIGNED_MANAGED_IDENTITY",
     "AIRFLOW__SECRETS__BACKEND_KWARGS",
 ]
-
-DATE = '{{dag_run.conf["date"]}}'  # set in config when triggering DAG
-
 
 def get_generic_vars() -> dict[str, str]:
     """Get generic environment variables all containers will need.
@@ -44,7 +44,7 @@ def get_generic_vars() -> dict[str, str]:
 
 with DAG(
     DAG_ID,
-    description="test-dag",
+    description="Dag to check individual containers before adding them into the pipeline",
     default_args={
         'depends_on_past': False,
         'email': ['airflow@example.com'],
@@ -57,34 +57,33 @@ with DAG(
     template_searchpath=["/"],
     catchup=False,
 ) as dag:
-    detect_containers = KubernetesPodOperator(
-        task_id="detect_containers",
-        namespace=AKS_NAMESPACE,
-        image=DETECT_CONTAINER_IMAGE,
-        env_vars=get_generic_vars(),
-        cmds=["python"],
-        arguments=["/app/inference_batch.py",
-                   "--date", DATE,
-                   "--device", "cpu",
-                   "--weights", "model_final.pth"],
-        labels=DAG_LABEL,
-        name=DAG_ID,
-        image_pull_policy="Always",
-        get_logs=True,
-        in_cluster=True,
-        is_delete_operator_pod=True,
-        log_events_on_failure=True,
-        hostnetwork=True,
-        reattach_on_restart=True,
-        dag=dag,
-        startup_timeout_seconds=3600,
-        execution_timeout=timedelta(hours=4),
-        node_selector={"nodetype": AKS_NODE_POOL},
-        volumes=[],
-        volume_mounts=[],
-    )
+
+    check_telnet = KubernetesPodOperator(
+            task_id='telnet',
+            namespace=AKS_NAMESPACE,
+            image=IMAGE,
+            env_vars=get_generic_vars(),
+            cmds=["bash", "-rc"],
+            arguments=["ip addr"],
+            labels=DAG_LABEL,
+            name=DAG_ID,
+            image_pull_policy="Always",
+            get_logs=True,
+            in_cluster=True,  # if true uses our service account token as aviable in Airflow on K8
+            is_delete_operator_pod=True,  # if true delete pod when pod reaches its final state.
+            log_events_on_failure=True,  # if true log the pod’s events if a failure occurs
+            hostnetwork=True,  # If True enable host networking on the pod. Beware, this value must be
+            # set to true if you want to make use of the pod-identity facilities like managed identity.
+            reattach_on_restart=True,
+            dag=dag,
+            startup_timeout_seconds=3600,
+            execution_timeout=timedelta(hours=4),
+            node_selector={"nodetype": AKS_NODE_POOL},
+            volumes=[],
+            volume_mounts=[],
+        )
 
 # FLOW
 var = (
-        detect_containers
+        check_telnet
 )
