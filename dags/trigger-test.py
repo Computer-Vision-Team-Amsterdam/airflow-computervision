@@ -65,5 +65,5 @@ with DAG(
 ) as dag:
     task = BashOperator(
         task_id='task',
-        bash_command="echo date interval end: {{ data_interval_end.to_datetime_string() }}; echo tz: {{ data_interval_end.tz }}",
+        bash_command="echo date interval end: {{ data_interval_end.in_tz('Europe/Amsterdam').to_datetime_string() }}",
     )
