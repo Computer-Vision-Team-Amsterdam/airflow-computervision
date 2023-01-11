@@ -25,12 +25,10 @@ from environment import (
     UPLOAD_TO_POSTGRES_CONTAINER_IMAGE,
 )
 
-# [registry]/[imagename]:[tag]
+DATE = '{{dag_run.conf["date"]}}'  # set in config when triggering DAG
 if OTAP_ENVIRONMENT.lower().endswith("ont"):
-    DATE = '{{dag_run.conf["date"]}}'  # set in config when triggering DAG
     NUM_WORKERS = 2
 else:
-    DATE = '{{dag_run.start_date}}'
     NUM_WORKERS = 8
 
 # Command that you want to run on container start
