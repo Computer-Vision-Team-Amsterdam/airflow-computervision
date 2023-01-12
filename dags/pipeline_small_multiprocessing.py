@@ -30,7 +30,7 @@ DATE = '{{dag_run.conf["date"]}}'  # set in config when triggering DAG
 if OTAP_ENVIRONMENT.lower().endswith("ont"):
     NUM_WORKERS = 2
 else:
-    NUM_WORKERS = 8
+    NUM_WORKERS = 16
 
 # Command that you want to run on container start
 DAG_ID: Final = "cvt-pipeline-small_multiprocessing"
@@ -109,7 +109,7 @@ default_args = {
 
 with DAG(
         "trigger-multiprocessing-small",
-        start_date=datetime(2023, 1, 10),
+        start_date=datetime(2023, 1, 1),
         max_active_runs=1,
         schedule_interval="0 20 * * 3",  # 20:00 UTC, will start every Wednesday at 21:00 CET
         default_args=default_args,
