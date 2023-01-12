@@ -129,6 +129,7 @@ with DAG(
 
 with DAG(
         DAG_ID,
+        start_date=datetime(2023, 1, 1),
         description="test-dag",
         default_args=default_args,
         on_failure_callback=on_failure_callback,
