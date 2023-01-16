@@ -13,6 +13,8 @@ from airflow.utils.dates import days_ago
 from azure.identity import ManagedIdentityCredential
 from azure.storage.blob import BlobServiceClient
 
+from kubernetes.client import models as k8s
+
 from slack_hooks.slack import (
     on_failure_callback,
     on_success_callback,
@@ -138,7 +140,14 @@ with DAG(
         schedule_interval=None,
         template_searchpath=["/"],
         catchup=False,
-        resources={"request_memory": "7000Mi", "limit_memory": "8000Mi"},
+        container_resources=k8s.V1ResourceRequirements(
+            requests={
+                'memory': '7000Mi',
+            },
+            limits={
+                'memory': '7500Mi',
+            }
+        ),
 ) as dag:
     retrieve_images = KubernetesPodOperator(
         task_id='retrieve_images',
