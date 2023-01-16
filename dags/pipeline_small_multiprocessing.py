@@ -219,10 +219,10 @@ with DAG(
            volume_mounts=[],
            container_resources=k8s.V1ResourceRequirements(
                requests={
-                   'memory': '7000Mi',
+                   'memory': '15000Mi',
                },
                limits={
-                   'memory': '7500Mi',
+                   'memory': '15500Mi',
                }
            ),
        )
@@ -307,10 +307,10 @@ with DAG(
             volume_mounts=[],
             container_resources=k8s.V1ResourceRequirements(
                 requests={
-                    'memory': '7000Mi',
+                    'memory': '15000Mi',
                 },
                 limits={
-                    'memory': '7500Mi',
+                    'memory': '15500Mi',
                 }
             ),
         )
