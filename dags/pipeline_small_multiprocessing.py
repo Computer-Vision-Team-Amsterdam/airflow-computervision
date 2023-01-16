@@ -138,6 +138,7 @@ with DAG(
         schedule_interval=None,
         template_searchpath=["/"],
         catchup=False,
+        resources={"request_memory": "7000Mi", "limit_memory": "8000Mi"},
 ) as dag:
     retrieve_images = KubernetesPodOperator(
         task_id='retrieve_images',
