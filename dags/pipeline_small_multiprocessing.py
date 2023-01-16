@@ -140,14 +140,6 @@ with DAG(
         schedule_interval=None,
         template_searchpath=["/"],
         catchup=False,
-        container_resources=k8s.V1ResourceRequirements(
-            requests={
-                'memory': '7000Mi',
-            },
-            limits={
-                'memory': '7500Mi',
-            }
-        ),
 ) as dag:
     retrieve_images = KubernetesPodOperator(
         task_id='retrieve_images',
@@ -225,6 +217,14 @@ with DAG(
            node_selector={"nodetype": AKS_NODE_POOL},
            volumes=[],
            volume_mounts=[],
+           container_resources=k8s.V1ResourceRequirements(
+               requests={
+                   'memory': '7000Mi',
+               },
+               limits={
+                   'memory': '7500Mi',
+               }
+           ),
        )
         for worker_id in range(1, NUM_WORKERS+1)]
 
@@ -305,6 +305,14 @@ with DAG(
             node_selector={"nodetype": AKS_NODE_POOL},
             volumes=[],
             volume_mounts=[],
+            container_resources=k8s.V1ResourceRequirements(
+                requests={
+                    'memory': '7000Mi',
+                },
+                limits={
+                    'memory': '7500Mi',
+                }
+            ),
         )
         for worker_id in range(1, NUM_WORKERS+1)]
 
