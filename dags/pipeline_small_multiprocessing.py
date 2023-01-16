@@ -217,13 +217,9 @@ with DAG(
            node_selector={"nodetype": AKS_NODE_POOL},
            volumes=[],
            volume_mounts=[],
-           container_resources=k8s.V1ResourceRequirements(
-               requests={
-                   'memory': '15000Mi',
-               },
-               limits={
-                   'memory': '15500Mi',
-               }
+           resources=k8s.V1ResourceRequirements(
+               requests={"memory": "15Gi"},
+               limits={"memory": "15Gi"}
            ),
        )
         for worker_id in range(1, NUM_WORKERS+1)]
@@ -305,13 +301,9 @@ with DAG(
             node_selector={"nodetype": AKS_NODE_POOL},
             volumes=[],
             volume_mounts=[],
-            container_resources=k8s.V1ResourceRequirements(
-                requests={
-                    'memory': '15000Mi',
-                },
-                limits={
-                    'memory': '15500Mi',
-                }
+            resources=k8s.V1ResourceRequirements(
+                requests={"memory": "15Gi"},
+                limits={"memory": "15Gi"}
             ),
         )
         for worker_id in range(1, NUM_WORKERS+1)]
