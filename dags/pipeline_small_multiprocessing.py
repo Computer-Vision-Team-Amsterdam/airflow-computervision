@@ -13,6 +13,8 @@ from airflow.utils.dates import days_ago
 from azure.identity import ManagedIdentityCredential
 from azure.storage.blob import BlobServiceClient
 
+from kubernetes.client import models as k8s
+
 from slack_hooks.slack import (
     on_failure_callback,
     on_success_callback,
@@ -28,7 +30,7 @@ from environment import (
 
 DATE = '{{dag_run.conf["date"]}}'  # set in config when triggering DAG
 if OTAP_ENVIRONMENT.lower().endswith("ont"):
-    NUM_WORKERS = 2
+    NUM_WORKERS = 8
 else:
     NUM_WORKERS = 16
 
@@ -215,6 +217,14 @@ with DAG(
            node_selector={"nodetype": AKS_NODE_POOL},
            volumes=[],
            volume_mounts=[],
+           container_resources=k8s.V1ResourceRequirements(
+               requests={
+                   'memory': '15000Mi',
+               },
+               limits={
+                   'memory': '15500Mi',
+               }
+           ),
        )
         for worker_id in range(1, NUM_WORKERS+1)]
 
@@ -295,6 +305,14 @@ with DAG(
             node_selector={"nodetype": AKS_NODE_POOL},
             volumes=[],
             volume_mounts=[],
+            container_resources=k8s.V1ResourceRequirements(
+                requests={
+                    'memory': '15000Mi',
+                },
+                limits={
+                    'memory': '15500Mi',
+                }
+            ),
         )
         for worker_id in range(1, NUM_WORKERS+1)]
 
