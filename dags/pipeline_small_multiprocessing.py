@@ -218,8 +218,8 @@ with DAG(
            volumes=[],
            volume_mounts=[],
            resources=k8s.V1ResourceRequirements(
-               requests={"memory": "15Gi"},
-               limits={"memory": "15Gi"}
+               requests={"memory": "16Gi"},
+               limits={"memory": "16Gi"}
            ),
        )
         for worker_id in range(1, NUM_WORKERS+1)]
@@ -302,8 +302,8 @@ with DAG(
             volumes=[],
             volume_mounts=[],
             resources=k8s.V1ResourceRequirements(
-                requests={"memory": "15Gi"},
-                limits={"memory": "15Gi"}
+                requests={"memory": "16Gi"},
+                limits={"memory": "16Gi"}
             ),
         )
         for worker_id in range(1, NUM_WORKERS+1)]
