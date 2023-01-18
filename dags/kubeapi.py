@@ -23,6 +23,6 @@ with DAG(
         schedule_interval=None,
 ) as dag:
     task1 = PythonOperator(
-        task_id="send_slack_message",
+        task_id="kubeapi",
         python_callable=script,
     )
