@@ -15,6 +15,10 @@ from slack_hooks.slack import (
     on_success_callback
 )
 
+from environment import (
+    BLOB_URL,
+)
+
 DATE = '{{dag_run.conf["date"]}}'  # set in config when triggering DAG
 
 # Command that you want to run on container start
