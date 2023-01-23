@@ -107,7 +107,7 @@ with DAG(
         # beware! If env vars are needed from worker,
         # add them here.
         env_vars=get_generic_vars(),
-        cmds=["bash", "-c", "echo $1 && /opt/retrieve_images.sh $1"],
+        cmds=["bash", "/opt/retrieve_images.sh"],
         arguments=[DATE],
         labels=DAG_LABEL,
         name=DAG_ID,
