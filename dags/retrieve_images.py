@@ -103,7 +103,7 @@ with DAG(
     retrieve_images = KubernetesPodOperator(
         task_id='retrieve_images',
         namespace=AKS_NAMESPACE,
-        image="/retrieve_images:latest",
+        image="cvtweuacrogidgmnhwma3zq.azurecr.io/retrieve_images:latest",
         # beware! If env vars are needed from worker,
         # add them here.
         env_vars=get_generic_vars(),
