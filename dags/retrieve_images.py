@@ -43,7 +43,7 @@ blob_service_client = BlobServiceClient(account_url=BLOB_URL,
                                        credential=credential)
 
 
-def get_generic_vars(log_level_error=False) -> dict[str, str]:
+def get_generic_vars() -> dict[str, str]:
     """Get generic environment variables all containers will need.
 
     Note: The K8PodOperator spins up a new node. This node needs
@@ -55,8 +55,6 @@ def get_generic_vars(log_level_error=False) -> dict[str, str]:
     GENERIC_VARS_DICT: dict[str, str] = {
         variable: os.environ[variable] for variable in GENERIC_VARS_NAMES
     }
-    if log_level_error:
-        GENERIC_VARS_DICT["LOG_LEVEL"] = "ERROR"
     return GENERIC_VARS_DICT
 
 
@@ -108,7 +106,7 @@ with DAG(
         image="cvtweuacrogidgmnhwma3zq.azurecr.io/retrieve_images:latest",
         # beware! If env vars are needed from worker,
         # add them here.
-        env_vars=get_generic_vars(log_level_error=True),
+        env_vars=get_generic_vars(),
         cmds=["bash", "/opt/retrieve_images.sh"],
         arguments=[DATE],
         labels=DAG_LABEL,
