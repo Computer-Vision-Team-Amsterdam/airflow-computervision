@@ -144,7 +144,7 @@ with DAG(
     flow = retrieve_images
 
 with DAG(
-        DAG_ID,
+        "retrieve-images-2",
         start_date=datetime(2023, 1, 1),
         description="retrieve-images-2",
         default_args=default_args,
