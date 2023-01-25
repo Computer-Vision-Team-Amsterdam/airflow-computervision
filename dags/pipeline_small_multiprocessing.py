@@ -25,7 +25,6 @@ from environment import (
     BLUR_CONTAINER_IMAGE,
     DETECT_CONTAINER_IMAGE,
     RETRIEVAL_CONTAINER_IMAGE,
-    UPLOAD_TO_POSTGRES_CONTAINER_IMAGE,
 )
 
 DATE = '{{dag_run.conf["date"]}}'  # set in config when triggering DAG
@@ -239,32 +238,6 @@ with DAG(
         dag=dag
     )
 
-    store_images_metadata = KubernetesPodOperator(
-        task_id='store_images_metadata',
-        namespace=AKS_NAMESPACE,
-        image=UPLOAD_TO_POSTGRES_CONTAINER_IMAGE,
-        env_vars=get_generic_vars(),
-        cmds=["python"],
-        arguments=["/opt/upload_to_postgres.py",
-                   "--table", "images",
-                   "--date", DATE],
-        labels=DAG_LABEL,
-        name=DAG_ID,
-        image_pull_policy="Always",
-        get_logs=True,
-        in_cluster=True,
-        is_delete_operator_pod=True,
-        log_events_on_failure=True,
-        hostnetwork=True,
-        reattach_on_restart=True,
-        dag=dag,
-        startup_timeout_seconds=3600,
-        execution_timeout=timedelta(hours=4),
-        node_selector={"nodetype": AKS_NODE_POOL},
-        volumes=[],
-        volume_mounts=[],
-    )
-
     count_blurred_images_removed = PythonOperator(
         task_id="count_blurred_images_removed",
         python_callable=count_blobs_in_container,
@@ -317,6 +290,6 @@ with DAG(
     """
 
     # FLOW
-    flow = retrieve_images >> count_downloaded_images >> store_images_metadata >> blur_tasks >> \
+    flow = retrieve_images >> count_downloaded_images >> blur_tasks >> \
            count_blurred_images >> remove_unblurred_images >> count_blurred_images_removed >> \
            detect_containers_tasks >> send_slack_message
