@@ -95,7 +95,10 @@ def remove_unblurred_images(**context):
 def count_blobs_in_container(container: str) -> int:
     # Blob storage API does not support querying blob count
     blob_list = blob_service_client.get_container_client(container=container).list_blobs()
-    return len([x for x in blob_list])
+    n_images = len([x for x in blob_list])
+    if n_images:
+        return n_images
+    raise ValueError("No images to process. Aborting")
 
 
 default_args = {
@@ -208,7 +211,9 @@ with DAG(
            hostnetwork=True,
            reattach_on_restart=True,
            dag=dag,
-           startup_timeout_seconds=3600,
+           startup_timeout_seconds=3600,  # 1 hour
+           retries=3,
+           retry_delay=300,  # 5 minutes
            execution_timeout=timedelta(hours=4),
            node_selector={"nodetype": AKS_NODE_POOL},
            volumes=[],
@@ -266,7 +271,9 @@ with DAG(
             hostnetwork=True,
             reattach_on_restart=True,
             dag=dag,
-            startup_timeout_seconds=3600,
+            startup_timeout_seconds=3600,  # 1 hour
+            retries=3,
+            retry_delay=300,  # 5 minutes
             execution_timeout=timedelta(hours=4),
             node_selector={"nodetype": AKS_NODE_POOL},
             volumes=[],
