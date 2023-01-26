@@ -216,7 +216,9 @@ with DAG(
            hostnetwork=True,
            reattach_on_restart=True,
            dag=dag,
-           startup_timeout_seconds=3600,
+           startup_timeout_seconds=3600,  # 1 hour
+           retries=3,
+           retry_delay=300,  # 5 minutes
            execution_timeout=timedelta(hours=4),
            node_selector={"nodetype": AKS_NODE_POOL},
            volumes=[],
@@ -274,7 +276,9 @@ with DAG(
             hostnetwork=True,
             reattach_on_restart=True,
             dag=dag,
-            startup_timeout_seconds=3600,
+            startup_timeout_seconds=3600,  # 1 hour
+            retries=3,
+            retry_delay=300,  # 5 minutes
             execution_timeout=timedelta(hours=4),
             node_selector={"nodetype": AKS_NODE_POOL},
             volumes=[],
