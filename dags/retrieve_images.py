@@ -20,6 +20,7 @@ from environment import (
 )
 
 DATE = '{{dag_run.conf["date"]}}'  # set in config when triggering DAG
+NUM_WORKERS = "8"
 
 # Command that you want to run on container start
 DAG_ID: Final = "cvt-retrieve_images"
@@ -35,8 +36,6 @@ GENERIC_VARS_NAMES: list = [
     "AIRFLOW__SECRETS__BACKEND_KWARGS",
     "AIRFLOW_CONN_POSTGRES_DEFAULT"
 ]
-
-NUM_WORKERS = 8
 
 client_id = os.getenv("USER_ASSIGNED_MANAGED_IDENTITY")
 credential = ManagedIdentityCredential(client_id=client_id)
@@ -108,8 +107,8 @@ with DAG(
         # beware! If env vars are needed from worker,
         # add them here.
         env_vars=get_generic_vars(),
-        cmds=["bash", "/opt/retrieve_images.sh"],
-        arguments=[DATE],
+        cmds=["bash", "/opt/retrieve_images.sh", DATE, NUM_WORKERS],
+        # arguments=[DATE, ],
         labels=DAG_LABEL,
         name=DAG_ID,
         # Determines when to pull a fresh image, if 'IfNotPresent' will cause
