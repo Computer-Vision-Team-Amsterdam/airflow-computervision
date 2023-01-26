@@ -109,7 +109,7 @@ with DAG(
         # add them here.
         env_vars=get_generic_vars(),
         cmds=["bash", "/opt/retrieve_images.sh"],
-        arguments=[DATE, NUM_WORKERS],
+        arguments=[DATE],
         labels=DAG_LABEL,
         name=DAG_ID,
         # Determines when to pull a fresh image, if 'IfNotPresent' will cause
