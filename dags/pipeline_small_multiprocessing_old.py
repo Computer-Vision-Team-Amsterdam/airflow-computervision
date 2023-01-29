@@ -263,7 +263,7 @@ with DAG(
             arguments=["/app/inference_batch.py",
                        "--date", DATE,
                        "--device", "cpu",
-                       "--weights", "model_final.pth",
+                       "--weights", "model_map076_large_segm.pth",
                        "--worker-id", str(worker_id),
                        "--num-workers", str(NUM_WORKERS)],
             labels=DAG_LABEL,
