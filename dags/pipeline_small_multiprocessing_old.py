@@ -32,7 +32,7 @@ DATE = '{{dag_run.conf["date"]}}'  # set in config when triggering DAG
 if OTAP_ENVIRONMENT.lower().endswith("ont"):
     NUM_WORKERS = 8
 else:
-    NUM_WORKERS = 16
+    NUM_WORKERS = 18
 
 # Command that you want to run on container start
 DAG_ID: Final = "cvt-pipeline-small_multiprocessing_old"
