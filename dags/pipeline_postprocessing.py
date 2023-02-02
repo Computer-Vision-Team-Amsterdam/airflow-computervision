@@ -14,7 +14,6 @@ from azure.identity import ManagedIdentityCredential
 from environment import (
     BLOB_URL,
     POSTPROCESSING_CONTAINER_IMAGE,
-    UPLOAD_TO_POSTGRES_CONTAINER_IMAGE,
 )
 
 # [registry]/[imagename]:[tag]
@@ -72,32 +71,6 @@ with DAG(
         template_searchpath=["/"],
         catchup=False,
 ) as dag:
-    store_images_metadata = KubernetesPodOperator(
-        task_id='store_images_metadata',
-        namespace=AKS_NAMESPACE,
-        image=UPLOAD_TO_POSTGRES_CONTAINER_IMAGE,
-        env_vars=get_generic_vars(),
-        cmds=["python"],
-        arguments=["/opt/upload_to_postgres.py",
-                   "--table", "images",
-                   "--date", DATE],
-        labels=DAG_LABEL,
-        name=DAG_ID,
-        image_pull_policy="Always",
-        get_logs=True,
-        in_cluster=True,
-        is_delete_operator_pod=True,
-        log_events_on_failure=True,
-        hostnetwork=True,
-        reattach_on_restart=True,
-        dag=dag,
-        startup_timeout_seconds=3600,
-        execution_timeout=timedelta(hours=4),
-        node_selector={"nodetype": AKS_NODE_POOL},
-        volumes=[],
-        volume_mounts=[],
-    )
-
     postprocessing = KubernetesPodOperator(
         task_id='postprocessing',
         namespace=AKS_NAMESPACE,
@@ -126,4 +99,4 @@ with DAG(
 
     # FLOW
 
-    flow = store_images_metadata >> postprocessing
+    flow = postprocessing
