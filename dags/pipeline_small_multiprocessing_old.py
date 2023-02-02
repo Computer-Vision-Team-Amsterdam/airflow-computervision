@@ -30,7 +30,7 @@ from environment import (
 
 DATE = '{{dag_run.conf["date"]}}'  # set in config when triggering DAG
 if OTAP_ENVIRONMENT.lower().endswith("ont"):
-    NUM_WORKERS = 8
+    NUM_WORKERS = 16
 else:
     NUM_WORKERS = 18
 
