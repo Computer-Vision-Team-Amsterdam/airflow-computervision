@@ -12,6 +12,9 @@ def test():
    else:
       print("Port is not open")
    sock.close()
+   if result == 0:
+      return
+   raise ConnectionError("Port was not open")
 
 
 default_args = {
@@ -26,8 +29,8 @@ default_args = {
 with DAG(
         "test_port",
         start_date=datetime(2023, 1, 1),
-        max_active_runs=1,
-        schedule_interval="*/5 * * * *",
+        max_active_runs=5,
+        schedule_interval="*/2 * * * *",
         default_args=default_args,
         catchup=False
 ) as dag:
