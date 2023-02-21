@@ -24,7 +24,7 @@ default_args = {
 }
 
 with DAG(
-        "test_port",
+        "api_test",
         start_date=datetime(2023, 1, 1),
         max_active_runs=5,
         schedule_interval="*/2 * * * *",
@@ -32,7 +32,7 @@ with DAG(
         catchup=False
 ) as dag:
    PythonOperator(
-      task_id="test_port",
+      task_id="api_test",
       python_callable=test,
       dag=dag
    )
