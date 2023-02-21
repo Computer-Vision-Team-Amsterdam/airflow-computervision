@@ -69,7 +69,7 @@ with DAG(
       # beware! If env vars are needed from worker,
       # add them here.
       env_vars=get_generic_vars(),
-      cmds=["python3 -c \"import requests; print(requests.get('https://api.data.amsterdam.nl/panorama/panoramas/?limit_results=1').raise_for_status())\""],
+      cmds=["python3 -c \"import requests; print(try: requests.get('https://api.data.amsterdam.nl/panorama/panoramas/?limit_results=1').raise_for_status(); except Exception as e: print(e); raise e)\""],
       labels=DAG_LABEL,
       name=DAG_ID,
       # Determines when to pull a fresh image, if 'IfNotPresent' will cause
